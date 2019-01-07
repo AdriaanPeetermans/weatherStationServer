@@ -97,6 +97,6 @@ public class DistributerServer extends Server {
 	}
 	
 	private String generateCode() {
-		return "1A2B3C";
+		return "123456";
 	}
 }

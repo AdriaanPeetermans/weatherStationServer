@@ -37,6 +37,7 @@ public class GameEngine {
 			this.players.add(this.playerIndex, player);
 		}
 		this.playerIndex ++;
+		this.host.notify("newPlayer", this.playerIndex-1);
 		return this.playerIndex - 1;
 	}
 	

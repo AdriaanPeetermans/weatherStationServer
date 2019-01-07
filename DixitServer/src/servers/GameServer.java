@@ -2,6 +2,8 @@ package servers;
 
 import java.util.ArrayList;
 
+import org.java_websocket.WebSocket;
+
 import game.GameEngine;
 import helpers.Server;
 import helpers.SocketMessage;
@@ -42,7 +44,7 @@ public class GameServer extends Server {
 	 * 		name:			hostGame		(starts a new game as host)
 	 * 		parameters:		none
 	 * 		gameState:		not existing
-	 * 		returns:		nothing
+	 * 		returns:		"code#" + gameCode
 	 * 
 	 * 		name:			getColors		(get player colors, without "#")
 	 * 		parameters:		none
@@ -108,7 +110,7 @@ public class GameServer extends Server {
 	private String hostGame() {
 		this.isHost = true;
 		this.game = this.mainServer.addGame(this);
-		return this.game.code;
+		return "code#".concat(this.game.code);
 	}
 	
 	private String getColors() {
@@ -122,7 +124,7 @@ public class GameServer extends Server {
 		for (String seg : segments) {
 			String[] segParts = seg.split("&");
 			String color = segParts[0];
-			int size = Integer.parseInt(segParts[1]);
+			float size = Float.parseFloat(segParts[1]);
 			int segLength = Integer.parseInt(segParts[2]);
 			ArrayList<Integer> segx = new ArrayList<Integer>(segLength);
 			ArrayList<Integer> segy = new ArrayList<Integer>(segLength);
@@ -133,7 +135,7 @@ public class GameServer extends Server {
 			Segment segment = new Segment(segx, segy, color, size);
 			segs.add(segment);
 		}
-		PlayerData playerData = new PlayerData(name, segs, this.mainServer.playerColors.get(this.playerIndex));
+		PlayerData playerData = new PlayerData(name, segs, this.mainServer.playerColors.get(this.playerIndex), this.playerIndex);
 		this.game.addPlayerDrawing(playerData, this.playerIndex);
 		if (this.playerIndex == 0) {
 			return 1;
@@ -147,18 +149,34 @@ public class GameServer extends Server {
 	 * Notify this gameServer for an event (add player, ...).
 	 * 
 	 * @param reason:
+	 * 		newPlayer:		Notify for player which is still drawing its avatar
+	 * 		gameState		0
+	 * 
 	 * 		addPlayer:		Send player data to host
 	 * 		gameState:		0
 	 */
 	public void notify(String reason, Object params) {
 		switch (reason) {
+			case "newPlayer":
+				int playerIndex = (int) params;
+				this.newPlayer(playerIndex);
+				break;
 			case "addPlayer":
 				PlayerData playerData = (PlayerData) params;
-				System.out.println("Received player: ".concat(playerData.name));
-				for (int i = 0; i < playerData.drawing.size(); i++) {
-					System.out.println(playerData.drawing.get(i).x);
-				}
+				this.addPlayer(playerData);
 				break;
 		}
+	}
+	
+	private void newPlayer(int playerIndex) {
+		System.out.println("komt hier: ".concat(Integer.toString(playerIndex)));
+		String message = "newPlayer#".concat(Integer.toString(playerIndex));
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+		System.out.println(message);
+	}
+	
+	private void addPlayer(PlayerData playerData) {
+		String message = "addPlayer#".concat(Integer.toString(playerData.index)).concat("#").concat(playerData.toString());
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
 	}
 }
