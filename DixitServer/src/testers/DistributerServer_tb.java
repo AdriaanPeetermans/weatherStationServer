@@ -1,7 +1,6 @@
 package testers;
 
 import servers.DistributerServer;
-import servers.GameServer;
 
 public class DistributerServer_tb {
 

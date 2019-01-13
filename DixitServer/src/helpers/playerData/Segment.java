@@ -29,4 +29,24 @@ public class Segment {
 		}
 		return result;
 	}
+	
+	public static ArrayList<Segment> parseSegment(String drawing) {
+		String[] segments = drawing.split("%");
+		ArrayList<Segment> segs = new ArrayList<Segment>(segments.length);
+		for (String seg : segments) {
+			String[] segParts = seg.split("&");
+			String color = segParts[0];
+			float size = Float.parseFloat(segParts[1]);
+			int segLength = Integer.parseInt(segParts[2]);
+			ArrayList<Integer> segx = new ArrayList<Integer>(segLength);
+			ArrayList<Integer> segy = new ArrayList<Integer>(segLength);
+			for (int i = 0; i < segLength; i++) {
+				segx.add(Integer.parseInt(segParts[3+2*i]));
+				segy.add(Integer.parseInt(segParts[4+2*i]));
+			}
+			Segment segment = new Segment(segx, segy, color, size);
+			segs.add(segment);
+		}
+		return segs;
+	}
 }

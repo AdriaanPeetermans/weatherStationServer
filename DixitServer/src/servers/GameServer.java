@@ -26,6 +26,8 @@ public class GameServer extends Server {
 	
 	public int playerIndex;
 	
+	private String word = "nikske";
+	
 	/**
 	 * Message:
 	 * 		functionName + # + param0 + # + param1 + # + ...
@@ -49,13 +51,53 @@ public class GameServer extends Server {
 	 * 		name:			getColors		(get player colors, without "#")
 	 * 		parameters:		none
 	 * 		gameState:		0
-	 * 		returns:		two colors in hexadecimal format, separated by "#"
+	 * 		returns:		"colors#" + two colors in hexadecimal format, separated by "#"
 	 * 
 	 * 		name:			addPlayer		(receive player name and drawing)
 	 * 		parameters:		name
 	 * 						segment1%segment2%segment3% ..., segment: color&size&length&x0&y0&x1&y1& ...
 	 * 		gameState		0
 	 * 		returns:		1 if player is VIP, 0 otherwise
+	 * 
+	 * 		name:			startGame
+	 * 		parameters:		none
+	 * 		gameState:		0
+	 * 		returns:		"players#" + number of players
+	 * 
+	 * 		name:			getWord
+	 * 		parameters:		none
+	 * 		gameState:		1
+	 * 		returns:		"word#" + word + "#" + time in seconds
+	 * 
+	 * 		name:			sendDrawing
+	 * 		parameters:		segment1%segment2%segment3% ..., segment: color&size&length&x0&y0&x1&y1& ...
+	 * 		gameState:		1
+	 * 		returns: 		nothing
+	 * 
+	 * 		name:			getWordTime
+	 * 		parameters:		none
+	 * 		gameSTate:		2
+	 * 		returns:		"wordTime#" + seconds for word time integer
+	 * 
+	 * 		name:			sendWord
+	 * 		parameters:		word
+	 * 		gameState:		2
+	 * 		returns:		nothing
+	 * 
+	 * 		name:			getWords
+	 * 		parameters:		none
+	 * 		gameState:		3
+	 * 		returns:		"words#" + numberWords + "#" + word1 + "#" + word2 + "#" + ...
+	 * 
+	 * 		name:			goFurther
+	 * 		parameters:		gameState integer: 1: waiting for players drawing
+	 * 		gameState:		?
+	 * 		returns:		"endWait" if yes, "no" if no
+	 * 
+	 * 		name:			getColorsHost
+	 * 		parameters:		none
+	 * 		gameState:		1
+	 * 		returns:		color00#color01#color10#color11#color20# ... #color70#color71
 	 */
 	@Override
 	public void handleMessage(SocketMessage t) {
@@ -75,6 +117,30 @@ public class GameServer extends Server {
 				break;
 			case "addPlayer":
 				t.sock.send(Integer.toString(this.addPlayer(parts[1], parts[2])));
+				break;
+			case "startGame":
+				t.sock.send(Integer.toString(this.startGame()));
+				break;
+			case "getWord":
+				t.sock.send("word#".concat(this.word).concat("#").concat(Integer.toString(this.game.wordTime)));
+				break;
+			case "sendDrawing":
+				this.sendDrawing(parts[1]);
+				break;
+			case "getWordTime":
+				t.sock.send("wordTime#".concat(Integer.toString(this.getWordTime())));
+				break;
+			case "sendWord":
+				this.sendWord(parts[1]);
+				break;
+			case "getWords":
+				t.sock.send("words#".concat(this.getWords()));
+				break;
+			case "goFurther":
+				t.sock.send(this.goFurther(Integer.parseInt(parts[1])));
+				break;
+			case "getColorsHost":
+				t.sock.send(this.getColorsHost());
 				break;
 		}
 	}
@@ -115,26 +181,11 @@ public class GameServer extends Server {
 	
 	private String getColors() {
 		PlayerColors colors = this.mainServer.playerColors.get(this.playerIndex);
-		return colors.color1.concat("#").concat(colors.color2);
+		return "colors#".concat(colors.color1).concat("#").concat(colors.color2);
 	}
 	
 	private int addPlayer(String name, String drawing) {
-		String[] segments = drawing.split("%");
-		ArrayList<Segment> segs = new ArrayList<Segment>(segments.length);
-		for (String seg : segments) {
-			String[] segParts = seg.split("&");
-			String color = segParts[0];
-			float size = Float.parseFloat(segParts[1]);
-			int segLength = Integer.parseInt(segParts[2]);
-			ArrayList<Integer> segx = new ArrayList<Integer>(segLength);
-			ArrayList<Integer> segy = new ArrayList<Integer>(segLength);
-			for (int i = 0; i < segLength; i++) {
-				segx.add(Integer.parseInt(segParts[3+2*i]));
-				segy.add(Integer.parseInt(segParts[4+2*i]));
-			}
-			Segment segment = new Segment(segx, segy, color, size);
-			segs.add(segment);
-		}
+		ArrayList<Segment> segs = Segment.parseSegment(drawing);
 		PlayerData playerData = new PlayerData(name, segs, this.mainServer.playerColors.get(this.playerIndex), this.playerIndex);
 		this.game.addPlayerDrawing(playerData, this.playerIndex);
 		if (this.playerIndex == 0) {
@@ -143,6 +194,50 @@ public class GameServer extends Server {
 		else {
 			return 0;
 		}
+	}
+	
+	private int startGame() {
+		return this.game.startGame();
+	}
+	
+	private void sendDrawing(String drawing) {
+		this.game.addDrawing(Segment.parseSegment(drawing), this.playerIndex);
+	}
+	
+	private int getWordTime() {
+		return this.game.wordChooseTime;
+	}
+	
+	private void sendWord(String word) {
+		this.game.addWord(word, this.playerIndex);
+	}
+	
+	private String getWords() {
+		ArrayList<String> words = this.game.getWords();
+		String result = Integer.toString(words.size()).concat("#");
+		for (int i = 0; i < words.size(); i++) {
+			result = result.concat(words.get(i)).concat("#");
+		}
+		return result;
+	}
+	
+	private String goFurther(int state) {
+		if (state < this.game.state) {
+			return "endWait";
+		}
+		else {
+			return "no";
+		}
+	}
+	
+	private String getColorsHost() {
+		String result = "playerColors#";
+		result = result.concat(Integer.toString(this.game.getNumberPlayers())).concat("#");
+		result = result.concat(Integer.toString(this.mainServer.playerColors.size())).concat("#");
+		for (PlayerColors color : this.mainServer.playerColors) {
+			result = result.concat(color.color1).concat("#").concat(color.color2).concat("#");
+		}
+		return result;
 	}
 	
 	/**
@@ -154,6 +249,21 @@ public class GameServer extends Server {
 	 * 
 	 * 		addPlayer:		Send player data to host
 	 * 		gameState:		0
+	 * 
+	 * 		startGame:		Notify player that game has started
+	 * 		gameState:		1
+	 * 
+	 * 		startGameHost:	Notify host that game has started
+	 * 		gameState:		1
+	 * 
+	 * 		drawingReady:	Notify host that player is ready drawing
+	 * 		gameState:		1
+	 * 
+	 * 		endWait:		Notify player to stop waiting for other players
+	 * 		gameState:		1
+	 * 
+	 * 		allDrawings:	Notify host that all players are ready drawing
+	 * 		gameState:		2
 	 */
 	public void notify(String reason, Object params) {
 		switch (reason) {
@@ -164,6 +274,24 @@ public class GameServer extends Server {
 			case "addPlayer":
 				PlayerData playerData = (PlayerData) params;
 				this.addPlayer(playerData);
+				break;
+			case "startGame":
+				String word = (String) params;
+				this.word = word;
+				this.playerStart();
+				break;
+			case "startGameHost":
+				this.playerStart();
+				break;
+			case "drawingReady":
+				int playerIndecs = (int) params;
+				this.drawingReady(playerIndecs);
+				break;
+			case "endWait":
+				this.endWait();
+				break;
+			case "allDrawings":
+				this.allDrawingsReady();
 				break;
 		}
 	}
@@ -177,6 +305,26 @@ public class GameServer extends Server {
 	
 	private void addPlayer(PlayerData playerData) {
 		String message = "addPlayer#".concat(Integer.toString(playerData.index)).concat("#").concat(playerData.toString());
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+	}
+	
+	private void playerStart() {
+		String message = "startGame#".concat(Integer.toString(this.game.wordTime));
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+	}
+	
+	private void drawingReady(int playerIndex) {
+		String message = "readyDrawing#".concat(Integer.toString(playerIndex));
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+	}
+	
+	private void endWait() {
+		String message = "endWait";
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+	}
+	
+	private void allDrawingsReady() {
+		String message = "allDrawingsReady#".concat(Integer.toString(this.game.wordChooseTime));
 		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
 	}
 }
