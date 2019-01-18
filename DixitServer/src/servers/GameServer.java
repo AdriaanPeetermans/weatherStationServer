@@ -98,6 +98,16 @@ public class GameServer extends Server {
 	 * 		parameters:		none
 	 * 		gameState:		1
 	 * 		returns:		color00#color01#color10#color11#color20# ... #color70#color71
+	 * 
+	 * 		name:			getPlayerNames
+	 * 		parameters:		none
+	 * 		gameState:		1
+	 * 		returns:		playerNames#numberPlayers#player1Name# ...
+	 * 
+	 * 		name:			getDrawing
+	 * 		parameters:		drawingNumber
+	 * 		gameState:		2
+	 * 		returns:		wordChooseTime#segment1%segment2%segment3% ..., segment: color&size&length&x0&y0&x1&y1& ...
 	 */
 	@Override
 	public void handleMessage(SocketMessage t) {
@@ -139,8 +149,14 @@ public class GameServer extends Server {
 			case "goFurther":
 				t.sock.send(this.goFurther(Integer.parseInt(parts[1])));
 				break;
+			case "getPlayerNames":
+				t.sock.send(this.getPlayerNames());
+				break;
 			case "getColorsHost":
 				t.sock.send(this.getColorsHost());
+				break;
+			case "getDrawing":
+				t.sock.send(this.getDrawing(Integer.parseInt(parts[1])));
 				break;
 		}
 	}
@@ -236,6 +252,25 @@ public class GameServer extends Server {
 		result = result.concat(Integer.toString(this.mainServer.playerColors.size())).concat("#");
 		for (PlayerColors color : this.mainServer.playerColors) {
 			result = result.concat(color.color1).concat("#").concat(color.color2).concat("#");
+		}
+		return result;
+	}
+	
+	private String getPlayerNames() {
+		String result = "playerNames#";
+		result = result.concat(Integer.toString(this.game.getNumberPlayers())).concat("#");
+		for (int i = 0; i < this.game.getNumberPlayers(); i++) {
+			result = result.concat(this.game.playerDatas.get(i).name).concat("#");
+		}
+		return result;
+	}
+	
+	private String getDrawing(int drawingNumber) {
+		String result = "drawing#";
+		result = result.concat(Integer.toString(this.game.wordChooseTime)).concat("#");
+		ArrayList<Segment> drawing = this.game.getRandomDrawing(drawingNumber);
+		for (Segment segment : drawing) {
+			result = result.concat(segment.toString()).concat("%");
 		}
 		return result;
 	}

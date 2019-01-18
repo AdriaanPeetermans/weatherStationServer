@@ -84,6 +84,12 @@ public class GameEngine {
 		return this.drawings.get(playerIndex);
 	}
 	
+	public ArrayList<Segment> getRandomDrawing(int drawingNumber) {
+		return this.getDrawing(this.drawingPerm.get(drawingNumber));
+	}
+	
+	private ArrayList<Integer> drawingPerm;
+	
 	private ArrayList<ArrayList<Segment>> drawings = new ArrayList<ArrayList<Segment>>(8);
 	
 	public synchronized int addPlayer(GameServer player) {
@@ -111,10 +117,13 @@ public class GameEngine {
 		this.state = 1;
 		WordsParser parser = new WordsParser("NL");
 		ArrayList<String> words = parser.getWords(this.players.size());
+		this.drawingPerm = new ArrayList<Integer>(this.players.size());
 		for (int i = 0; i < this.players.size(); i++) {
 			this.players.get(i).notify("startGame", words.get(i));
+			this.drawingPerm.add(i);
 		}
 		this.host.notify("startGameHost", null);
+		Collections.shuffle(this.drawingPerm);
 		return this.players.size();
 	}
 	
