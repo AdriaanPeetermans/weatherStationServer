@@ -33,7 +33,13 @@ public class GameEngine {
 	
 	public final int wordChooseTime = 125;
 	
-	private ArrayList<String> words = new ArrayList<String>(8);
+	public final int voteTime = 100;
+	
+	private String[] words = new String[8];
+	
+	public int wordNumber = 0;
+	
+	public int[] points = new int[8];
 	
 	/**
 	 * GameState:
@@ -64,6 +70,7 @@ public class GameEngine {
 			return;
 		}
 		this.initPlayersReady();
+		this.playersReady[this.drawingPerm.get(this.wordNumber)] = true;
 		for (int i = 0; i < this.players.size(); i++) {
 			this.players.get(i).notify("endWait", null);
 		}
@@ -92,6 +99,8 @@ public class GameEngine {
 	
 	private ArrayList<ArrayList<Segment>> drawings = new ArrayList<ArrayList<Segment>>(8);
 	
+	private ArrayList<String> realWords = new ArrayList<String>(8);
+	
 	public synchronized int addPlayer(GameServer player) {
 		if (!this.players.contains(player)) {
 			this.players.add(this.playerIndex, player);
@@ -116,10 +125,10 @@ public class GameEngine {
 	public synchronized int startGame() {
 		this.state = 1;
 		WordsParser parser = new WordsParser("NL");
-		ArrayList<String> words = parser.getWords(this.players.size());
+		this.realWords = parser.getWords(this.players.size());
 		this.drawingPerm = new ArrayList<Integer>(this.players.size());
 		for (int i = 0; i < this.players.size(); i++) {
-			this.players.get(i).notify("startGame", words.get(i));
+			this.players.get(i).notify("startGame", this.realWords.get(i));
 			this.drawingPerm.add(i);
 		}
 		this.host.notify("startGameHost", null);
@@ -128,19 +137,76 @@ public class GameEngine {
 	}
 	
 	public void addWord(String word, int playerIndex) {
-		this.words.add(playerIndex, word);
+		word = this.adjustWord(word);
+		this.words[playerIndex] = word;
+		this.playersReady[playerIndex] = true;
+		this.checkAllPlayersReadyWord();
 	}
 	
-	public ArrayList<String> getWords() {
+	private void checkAllPlayersReadyWord() {
+		if (!this.goFurther()) {
+			return;
+		}
+		this.initPlayersReady();
+		this.playersReady[this.drawingPerm.get(this.wordNumber)] = true;
+		for (int i = 0; i < this.players.size(); i++) {
+			this.players.get(i).notify("endWait", null);
+		}
+		this.state = 3;
+		this.host.notify("voteWord", null);
+	}
+	
+	public ArrayList<String> getWords(int playerNumber) {
 		ArrayList<String> result = new ArrayList<String>(this.players.size());
 		for (int i = 0; i < this.players.size(); i++) {
-			result.add(this.words.get(i));
+			if (i != playerNumber) {
+				result.add(this.words[i]);
+			}
 		}
+		result.add(this.realWords.get(this.drawingPerm.get(this.wordNumber)));
 		Collections.shuffle(result);
 		return result;
 	}
 	
 	public int getNumberPlayers() {
 		return this.players.size();
+	}
+	
+	public int getCurrentPlayer() {
+		return this.drawingPerm.get(this.wordNumber);
+	}
+	
+	private String adjustWord(String word) {
+		word = word.toLowerCase();
+		word = word.substring(0,1).toUpperCase().concat(word.substring(1));
+		return word;
+	}
+	
+	public void voted(int playerNumber, String word) {
+		if (word.equals(this.realWords.get(this.drawingPerm.get(this.wordNumber)))) { //Correct vote
+			this.points[playerNumber] ++;
+			this.points[this.drawingPerm.get(this.wordNumber)] += 2;
+		}
+		else {
+			for (int i = 0; i < this.players.size(); i++) {
+				if ((this.words[i].equals(word)) && (i != playerNumber)) { //Mislead
+					this.points[i] ++;
+				}
+			}
+		}
+		this.checkAllPlayersReadyVoting();
+	}
+	
+	private void checkAllPlayersReadyVoting() {
+		if (!this.goFurther()) {
+			return;
+		}
+		this.initPlayersReady();
+//		for (int i = 0; i < this.players.size(); i++) {
+//			this.players.get(i).notify("endWait", null);
+//		}
+		System.out.println("stemmen klaar");
+		this.state = 1;
+		this.host.notify("showPoints", null);
 	}
 }

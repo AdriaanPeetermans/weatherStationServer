@@ -108,6 +108,16 @@ public class GameServer extends Server {
 	 * 		parameters:		drawingNumber
 	 * 		gameState:		2
 	 * 		returns:		wordChooseTime#segment1%segment2%segment3% ..., segment: color&size&length&x0&y0&x1&y1& ...
+	 * 
+	 * 		name:			getVoteTime
+	 * 		parameters:		none
+	 * 		gameState:		3
+	 * 		returns:		voteTime
+	 * 
+	 * 		name:			voted
+	 * 		parameter:		word
+	 * 		gameState:		3
+	 * 		returns:		nothing
 	 */
 	@Override
 	public void handleMessage(SocketMessage t) {
@@ -157,6 +167,12 @@ public class GameServer extends Server {
 				break;
 			case "getDrawing":
 				t.sock.send(this.getDrawing(Integer.parseInt(parts[1])));
+				break;
+			case "getVoteTime":
+				t.sock.send("voteTime#".concat(Integer.toString(this.game.voteTime)));
+				break;
+			case "voted":
+				this.voted(parts[1]);
 				break;
 		}
 	}
@@ -229,9 +245,13 @@ public class GameServer extends Server {
 	}
 	
 	private String getWords() {
-		ArrayList<String> words = this.game.getWords();
-		String result = Integer.toString(words.size()).concat("#");
-		for (int i = 0; i < words.size(); i++) {
+		if (this.playerIndex == this.game.getCurrentPlayer()) {
+			String result = "No";
+			return result;
+		}
+		ArrayList<String> words = this.game.getWords(this.playerIndex);
+		String result = Integer.toString(this.game.getNumberPlayers()).concat("#");
+		for (int i = 0; i < this.game.getNumberPlayers(); i++) {
 			result = result.concat(words.get(i)).concat("#");
 		}
 		return result;
@@ -267,12 +287,17 @@ public class GameServer extends Server {
 	
 	private String getDrawing(int drawingNumber) {
 		String result = "drawing#";
+		result = result.concat(Integer.toString(this.game.getNumberPlayers())).concat("#");
 		result = result.concat(Integer.toString(this.game.wordChooseTime)).concat("#");
 		ArrayList<Segment> drawing = this.game.getRandomDrawing(drawingNumber);
 		for (Segment segment : drawing) {
 			result = result.concat(segment.toString()).concat("%");
 		}
 		return result;
+	}
+	
+	private void voted(String word) {
+		
 	}
 	
 	/**
@@ -298,6 +323,12 @@ public class GameServer extends Server {
 	 * 		gameState:		1
 	 * 
 	 * 		allDrawings:	Notify host that all players are ready drawing
+	 * 		gameState:		2
+	 * 
+	 * 		voteWord:		Notify host that all players are ready for word voting
+	 * 		gameState:		3
+	 * 
+	 * 		showPoints:		Notify host that all players have voted and points can be showed
 	 * 		gameState:		2
 	 */
 	public void notify(String reason, Object params) {
@@ -327,6 +358,12 @@ public class GameServer extends Server {
 				break;
 			case "allDrawings":
 				this.allDrawingsReady();
+				break;
+			case "voteWord":
+				this.voteWord();
+				break;
+			case "showPoints":
+				this.showPoints();
 				break;
 		}
 	}
@@ -361,5 +398,14 @@ public class GameServer extends Server {
 	private void allDrawingsReady() {
 		String message = "allDrawingsReady#".concat(Integer.toString(this.game.wordChooseTime));
 		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+	}
+	
+	private void voteWord() {
+		String message = "voteWord#".concat(Integer.toString(this.game.voteTime));
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
+	}
+	
+	private void showPoints() { // Host wil animate points and send message to server that players can be woken up from waiting.
+		
 	}
 }
