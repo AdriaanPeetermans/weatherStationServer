@@ -16,7 +16,7 @@ public class BasisHandler_tb {
 		try {
 			//bh.setTime();
 			//System.out.println(bh.getDayIndex());
-			bh.transferFiles(4);
+			bh.transferFiles(9);
 		} catch (BasisException e) {
 			e.printStackTrace();
 		}

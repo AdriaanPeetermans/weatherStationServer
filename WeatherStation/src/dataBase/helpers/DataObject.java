@@ -37,6 +37,9 @@ public abstract class DataObject {
 	public abstract void adjustData(int minutes, int startMinute);
 	
 	protected void fixDataFloat(ArrayList<Float> data, int maxDeviationPerc, float min, float max) {
+		if (data.size() <= 1) {
+			return;
+		}
 		ArrayList<Float> result = new ArrayList<Float>(data.size());
 		for (int i = 0; i < data.size(); i++) {
 			if ((i != 0) && (i != data.size()-1)) {
@@ -123,6 +126,9 @@ public abstract class DataObject {
 	}
 	
 	protected void fixDataInt(ArrayList<Integer> data, int maxDeviationPerc, int min, int max) {
+		if (data.size() <= 1) {
+			return;
+		}
 		ArrayList<Integer> result = new ArrayList<Integer>(data.size());
 		for (int i = 0; i < data.size(); i++) {
 			if ((i != 0) && (i != data.size()-1)) {
@@ -209,6 +215,13 @@ public abstract class DataObject {
 	}
 	
 	protected void adjustFloat(ArrayList<Float> data, int minutes, int startMinute) {
+		int nbFirstOne = 1;
+		if (data.size() > 1) {
+			int min0 = this.time.get(0).get(Calendar.MINUTE) + this.time.get(0).get(Calendar.HOUR_OF_DAY)*60;
+			int min1 = this.time.get(1).get(Calendar.MINUTE) + this.time.get(1).get(Calendar.HOUR_OF_DAY)*60;
+			nbFirstOne = (int) ((min1-min0) / minutes);
+		}
+		int nbLastOne = nbFirstOne;
 		int nbSamples = (int) (24.0*60/minutes);
 		if (!this.exist) {
 			for (int i = 0; i < nbSamples; i++) {
@@ -218,7 +231,6 @@ public abstract class DataObject {
 		}
 		ArrayList<Float> result = new ArrayList<Float>(nbSamples);
 		int currentMin = startMinute;
-		boolean lastOne = true;
 		int i = 0;
 		while (currentMin < 24*60) {
 			//System.out.println(currentMin);
@@ -237,9 +249,9 @@ public abstract class DataObject {
 					else {
 						//System.out.println("einde");
 						//result.add(this.interpolate(this.time.get(data.size()-2).get(Calendar.MINUTE)+this.time.get(data.size()-2).get(Calendar.HOUR_OF_DAY)*60, this.time.get(data.size()-1).get(Calendar.MINUTE)+this.time.get(data.size()-1).get(Calendar.HOUR_OF_DAY)*60, data.get(data.size()-2), data.get(data.size()-1), currentMin));
-						if (lastOne) {
+						if ((nbLastOne > 0) && (data.size() > 1)) {
 							result.add(this.interpolate(this.time.get(data.size()-2).get(Calendar.MINUTE)+this.time.get(data.size()-2).get(Calendar.HOUR_OF_DAY)*60, this.time.get(data.size()-1).get(Calendar.MINUTE)+this.time.get(data.size()-1).get(Calendar.HOUR_OF_DAY)*60, data.get(data.size()-2), data.get(data.size()-1), currentMin));
-							lastOne = false;
+							nbLastOne --;
 						}
 						else {
 							result.add((float) 0);
@@ -248,11 +260,17 @@ public abstract class DataObject {
 				}
 				else {
 					//System.out.println("begin");
-					if (currentMin + minutes > minI) {
+					if ((currentMin + minutes > minI) && (data.size() > 1)) {
 						result.add(this.interpolate(this.time.get(0).get(Calendar.MINUTE)+this.time.get(0).get(Calendar.HOUR_OF_DAY)*60, this.time.get(1).get(Calendar.MINUTE)+this.time.get(1).get(Calendar.HOUR_OF_DAY)*60, data.get(0), data.get(1), currentMin));
 					}
 					else {
-						result.add((float) 0);
+						if (nbFirstOne > 0) {
+							result.add(data.get(0));
+							nbFirstOne --;
+						}
+						else {
+							result.add((float) 0);
+						}
 					}
 				}
 				currentMin = currentMin + minutes;
@@ -270,6 +288,13 @@ public abstract class DataObject {
 	}
 	
 	protected void adjustInt(ArrayList<Integer> data, int minutes, int startMinute) {
+		int nbFirstOne = 1;
+		if (data.size() > 1) {
+			int min0 = this.time.get(0).get(Calendar.MINUTE) + this.time.get(0).get(Calendar.HOUR_OF_DAY)*60;
+			int min1 = this.time.get(1).get(Calendar.MINUTE) + this.time.get(1).get(Calendar.HOUR_OF_DAY)*60;
+			nbFirstOne = (int) ((min1-min0) / minutes);
+		}
+		int nbLastOne = nbFirstOne;
 		int nbSamples = (int) (24.0*60/minutes);
 		if (!this.exist) {
 			for (int i = 0; i < nbSamples; i++) {
@@ -279,7 +304,6 @@ public abstract class DataObject {
 		}
 		ArrayList<Integer> result = new ArrayList<Integer>(nbSamples);
 		int currentMin = startMinute;
-		boolean lastOne = true;
 		int i = 0;
 		while (currentMin < 24*60) {
 			//System.out.println(currentMin);
@@ -297,9 +321,9 @@ public abstract class DataObject {
 					}
 					else {
 						//System.out.println("einde");
-						if (lastOne) {
+						if ((nbLastOne > 0) && (data.size() > 1)) {
 							result.add((int) this.interpolate(this.time.get(data.size()-2).get(Calendar.MINUTE)+this.time.get(data.size()-2).get(Calendar.HOUR_OF_DAY)*60, this.time.get(data.size()-1).get(Calendar.MINUTE)+this.time.get(data.size()-1).get(Calendar.HOUR_OF_DAY)*60, data.get(data.size()-2), data.get(data.size()-1), currentMin));
-							lastOne = false;
+							nbLastOne --;
 						}
 						else {
 							result.add(0);
@@ -308,11 +332,17 @@ public abstract class DataObject {
 				}
 				else {
 					//System.out.println("begin");
-					if (currentMin + minutes > minI) {
+					if ((currentMin + minutes > minI) && (data.size() > 1)) {
 						result.add((int) this.interpolate(this.time.get(0).get(Calendar.MINUTE)+this.time.get(0).get(Calendar.HOUR_OF_DAY)*60, this.time.get(1).get(Calendar.MINUTE)+this.time.get(1).get(Calendar.HOUR_OF_DAY)*60, data.get(0), data.get(1), currentMin));
 					}
 					else {
-						result.add(0);
+						if (nbFirstOne > 0) {
+							result.add(data.get(0));
+							nbFirstOne --;
+						}
+						else {
+							result.add(0);
+						}
 					}
 				}
 				currentMin = currentMin + minutes;

@@ -72,13 +72,28 @@ public class MailServer extends Thread {
 		String content = mail.content;
 		String[] lines = content.split("\n");
 		String answer = "----- WeatherStation response -----\n";
+		boolean wrongLine = false;
 		for (String line : lines) {
 			String l = line.split("\r")[0];
 			switch (l) {
 				case "BASIS get live":
 					answer = answer.concat(this.getLive()).concat("\n");
 					break;
+				case "BASIS help":
+				case "BASIS Help":
+				case "BASIS HELP":
+				case "help":
+				case "Help":
+				case "HELP":
+					answer = answer.concat(this.getHelp()).concat("\n");
+					break;
+				default:
+					wrongLine = true;
+					break;
 			}
+		}
+		if (wrongLine) {
+			answer = answer.concat(this.getWrongLine()).concat("\n");
 		}
 		this.sendMail(mail.from, "RE: ".concat(mail.subject), answer);
 	}
@@ -107,6 +122,21 @@ public class MailServer extends Thread {
 		result = result.concat("Light level inside:\t\t").concat(Float.toString(data.lightIn)).concat("\n");
 		result = result.concat("Panel voltage:\t\t\t").concat(Float.toString(data.pv)).concat(" V").concat("\n");
 		result = result.concat("Battery voltage:\t\t").concat(Float.toString(data.bv)).concat(" V").concat("\n");
+		return result;
+	}
+	
+	private String getHelp() {
+		String result = "This is the weatherStation mail interface.\nPossible commands (so far) are:\n"
+				+ "\tBASIS get live\t\t\tGet live data from the weather station.\n"
+				+ "\tBASIS help\t\t\tShow this help message.\n\n"
+				+ "Creator: Adriaan Peetermans\tLast update on: 24/02/2019\n";
+		return result;
+	}
+	
+	private String getWrongLine() {
+		String result = "One or multiple commands you entered are unvalid.\n"
+				+ "Auto generated help message:\n";
+		result = result.concat(this.getHelp());
 		return result;
 	}
 	
