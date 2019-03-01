@@ -22,6 +22,9 @@ import javax.mail.search.FlagTerm;
 
 import basis.BasisHandler;
 import basis.helpers.BasisLiveData;
+import dataBase.Parser;
+import dataBase.helpers.BasisData;
+import dataBase.helpers.Sensor1Data;
 import exceptions.BasisException;
 import mailServer.helpers.MailMessage;
 
@@ -138,6 +141,27 @@ public class MailServer extends Thread {
 				+ "Auto generated help message:\n";
 		result = result.concat(this.getHelp());
 		return result;
+	}
+	
+	//Date format: 24/02/2019
+	private string getFile(String data) {
+		String[] dataParts = data.split("/");
+		if (dataParts.length != 3) {
+			return "Wrong date format!\n";
+		}
+		int day, month, year;
+		try {
+			day = Integer.parseInt(dataParts[0]);
+			month = Integer.parseInt(dataParts[1]);
+			year = Integer.parseInt(dataParts[2]);
+		}
+		catch (NumberFormatException e) {
+			return "Wrong date format!\n";
+		}
+		Parser basisParser = new Parser("BASIS", year, month, day, true);
+		BasisData basisData = (BasisData) basisParser.readFile();
+		Parser sensor1Parser = new Parser("SENSOR1", year, month, day, true);
+		Sensor1Data sensor1Date = (Sensor1Data) sensor1Parser.readFile();
 	}
 	
 	private HashSet<MailMessage> getMails() {
