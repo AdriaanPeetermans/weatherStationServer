@@ -15,8 +15,8 @@ public class BasisHandler_tb {
 		//System.out.println(bh.createTextForecast(data[0]));
 		try {
 			//bh.setTime();
-			//System.out.println(bh.getDayIndex());
-			bh.transferFiles(4);
+			System.out.println(bh.getDayIndex());
+			//bh.transferFiles(7);
 		} catch (BasisException e) {
 			e.printStackTrace();
 		}
