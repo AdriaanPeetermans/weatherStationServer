@@ -65,6 +65,14 @@ public class BasisHandler {
 		}
 	}
 	
+	public void setDayCounter(int dayCounter) throws BasisException {
+		String message = "P04 ".concat(this.extendString(dayCounter, 2));
+		String answer = this.sendToBasis(message);
+		if (!answer.equals("B04 OK")) {
+			throw new BasisException("Wrong answer from basis, answer: ".concat(answer));
+		}
+	}
+	
 	/**
 	 * Forecast structure:
 	 * 		P02 numberDays(2),{day1},{day2},...,{dayn}
