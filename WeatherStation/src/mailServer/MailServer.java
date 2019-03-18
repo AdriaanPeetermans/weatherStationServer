@@ -22,9 +22,6 @@ import javax.mail.search.FlagTerm;
 
 import basis.BasisHandler;
 import basis.helpers.BasisLiveData;
-import dataBase.Parser;
-import dataBase.helpers.BasisData;
-import dataBase.helpers.Sensor1Data;
 import exceptions.BasisException;
 import mailServer.helpers.MailMessage;
 
@@ -77,6 +74,8 @@ public class MailServer extends Thread {
 		String answer = "----- WeatherStation response -----\n";
 		boolean wrongLine = false;
 		for (String line : lines) {
+			System.out.println("Line: ".concat(line));
+			System.out.println(line.split("\r"));
 			String l = line.split("\r")[0];
 			switch (l) {
 				case "BASIS get live":
@@ -107,8 +106,10 @@ public class MailServer extends Thread {
 			data = bh.getLiveData();
 			
 		} catch (BasisException e) {
+			System.out.println("kan niet verbinden...");
 			e.printStackTrace();
 		}
+		//data = new BasisLiveData(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 19, Calendar.getInstance());
 		String result = "BASIS live data:\n";
 		if (data == null) {
 			result = result.concat("No live data available.\n");
@@ -144,25 +145,25 @@ public class MailServer extends Thread {
 	}
 	
 	//Date format: 24/02/2019
-	private string getFile(String data) {
-		String[] dataParts = data.split("/");
-		if (dataParts.length != 3) {
-			return "Wrong date format!\n";
-		}
-		int day, month, year;
-		try {
-			day = Integer.parseInt(dataParts[0]);
-			month = Integer.parseInt(dataParts[1]);
-			year = Integer.parseInt(dataParts[2]);
-		}
-		catch (NumberFormatException e) {
-			return "Wrong date format!\n";
-		}
-		Parser basisParser = new Parser("BASIS", year, month, day, true);
-		BasisData basisData = (BasisData) basisParser.readFile();
-		Parser sensor1Parser = new Parser("SENSOR1", year, month, day, true);
-		Sensor1Data sensor1Date = (Sensor1Data) sensor1Parser.readFile();
-	}
+//	private string getFile(String data) {
+//		String[] dataParts = data.split("/");
+//		if (dataParts.length != 3) {
+//			return "Wrong date format!\n";
+//		}
+//		int day, month, year;
+//		try {
+//			day = Integer.parseInt(dataParts[0]);
+//			month = Integer.parseInt(dataParts[1]);
+//			year = Integer.parseInt(dataParts[2]);
+//		}
+//		catch (NumberFormatException e) {
+//			return "Wrong date format!\n";
+//		}
+//		Parser basisParser = new Parser("BASIS", year, month, day, true);
+//		BasisData basisData = (BasisData) basisParser.readFile();
+//		Parser sensor1Parser = new Parser("SENSOR1", year, month, day, true);
+//		Sensor1Data sensor1Date = (Sensor1Data) sensor1Parser.readFile();
+//	}
 	
 	private HashSet<MailMessage> getMails() {
 		HashSet<MailMessage> result = new HashSet<MailMessage>(10);

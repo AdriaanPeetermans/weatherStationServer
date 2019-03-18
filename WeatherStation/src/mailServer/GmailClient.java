@@ -15,7 +15,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.FlagTerm;
-import javax.swing.JOptionPane;
  
 /**
  *
@@ -180,42 +179,42 @@ public class GmailClient {
  
     }
  
-    public static void main(String[] args) {
- 
-        String mailFrom=new String("weatherstation.basis@gmail.com");
- 
-        //Sender must be a Gmail Account holder
- 
-        String mailTo=new String("adriaanpeetermans@live.be");
- 
-        //but here you can send to any type of mail account
- 
-        String senderPassword=new String("w3Ath3r5tAt10n");
- 
-        String senderUserName=new String("weatherstation.basis@gmail.com");
- 
-        //Mention your email subject and content
- 
-        String mailSubject=new String("Testing Mail");
- 
-        String mailText=new String("Have an Nice Day ...........!!!");
- 
-        //Create a GmailClient object
- 
-        GmailClient newGmailClient=new GmailClient();
- 
-        //Setting up account details
- 
-        newGmailClient.setAccountDetails(senderUserName, senderPassword);
- 
-        //Send mail
- 
-        //newGmailClient.sendGmail(mailFrom, mailTo, mailSubject, mailText);
- 
-        //Receive mails
- 
-        newGmailClient.readGmail();
- 
-    }
+//    public static void main(String[] args) {
+// 
+//        String mailFrom=new String("weatherstation.basis@gmail.com");
+// 
+//        //Sender must be a Gmail Account holder
+// 
+//        String mailTo=new String("adriaanpeetermans@live.be");
+// 
+//        //but here you can send to any type of mail account
+// 
+//        String senderPassword=new String("w3Ath3r5tAt10n");
+// 
+//        String senderUserName=new String("weatherstation.basis@gmail.com");
+// 
+//        //Mention your email subject and content
+// 
+//        String mailSubject=new String("Testing Mail");
+// 
+//        String mailText=new String("Have an Nice Day ...........!!!");
+// 
+//        //Create a GmailClient object
+// 
+//        GmailClient newGmailClient=new GmailClient();
+// 
+//        //Setting up account details
+// 
+//        newGmailClient.setAccountDetails(senderUserName, senderPassword);
+// 
+//        //Send mail
+// 
+//        //newGmailClient.sendGmail(mailFrom, mailTo, mailSubject, mailText);
+// 
+//        //Receive mails
+// 
+//        newGmailClient.readGmail();
+// 
+//    }
  
 }

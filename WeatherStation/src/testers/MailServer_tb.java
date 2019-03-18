@@ -1,9 +1,6 @@
 package testers;
 
-import java.util.HashSet;
-
 import mailServer.MailServer;
-import mailServer.helpers.MailMessage;
 
 public class MailServer_tb {
 

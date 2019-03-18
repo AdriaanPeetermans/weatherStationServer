@@ -2,11 +2,11 @@ package timingHandlers;
 
 import basis.BasisHandler;
 import exceptions.BasisException;
-import exceptions.OWMException;
-import openWeatherMap.Connector;
+//import exceptions.OWMException;
+//import openWeatherMap.Connector;
 import openWeatherMap.ForecastParser;
 import openWeatherMap.WeatherData;
-import openWeatherMap.WeatherDataParser;
+//import openWeatherMap.WeatherDataParser;
 import timingHandlers.helpers.DayTime;
 
 public class BASISForecastUpdater extends Updater {
@@ -15,21 +15,21 @@ public class BASISForecastUpdater extends Updater {
 		super(ip, port, minutesInterval);
 		this.basisHandler = new BasisHandler(this.ip, this.port, 10, 5, 5);
 		this.forecastParser = new ForecastParser();
-		this.weatherDataParser = new WeatherDataParser();
+		//this.weatherDataParser = new WeatherDataParser();
 	}
 	
 	public BASISForecastUpdater(String ip, int port, DayTime when) {
 		super (ip, port, when);
 		this.basisHandler = new BasisHandler(this.ip, this.port, 10, 5, 5);
 		this.forecastParser = new ForecastParser();
-		this.weatherDataParser = new WeatherDataParser();
+		//this.weatherDataParser = new WeatherDataParser();
 	}
 	
 	private final BasisHandler basisHandler;
 	
 	private final ForecastParser forecastParser;
 	
-	private final WeatherDataParser weatherDataParser;
+	//private final WeatherDataParser weatherDataParser;
 	
 	public void run() {
 		super.run();

@@ -1,9 +1,6 @@
 package testers;
 
-import java.util.concurrent.TimeUnit;
-
 import basis.BasisHandler;
-import basis.helpers.BasisLiveData;
 import exceptions.BasisException;
 
 public class BasisHandler_tb {
@@ -16,7 +13,7 @@ public class BasisHandler_tb {
 		try {
 			//bh.setTime();
 			//System.out.println(bh.getDayIndex());
-			bh.transferFiles(5);
+			bh.transferFiles(7);
 			//bh.setDayCounter(8);
 		} catch (BasisException e) {
 			e.printStackTrace();

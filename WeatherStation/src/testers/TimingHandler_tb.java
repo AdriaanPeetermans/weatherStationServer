@@ -3,7 +3,6 @@ package testers;
 import java.util.HashSet;
 
 import timingHandlers.BASISTimeUpdater;
-import timingHandlers.BASISTransferFilesUpdater;
 import timingHandlers.TimingHandler;
 import timingHandlers.Updater;
 import timingHandlers.helpers.DayTime;

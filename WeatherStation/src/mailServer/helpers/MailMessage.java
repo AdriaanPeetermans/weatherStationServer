@@ -5,7 +5,12 @@ public class MailMessage {
 	public MailMessage(String from, String content, String subject) {
 		this.from = from;
 		this.content = content;
-		this.subject = subject;
+		if (subject == null) {
+			this.subject = "No subject";
+		}
+		else {
+			this.subject = subject;
+		}
 	}
 	
 	public final String from;

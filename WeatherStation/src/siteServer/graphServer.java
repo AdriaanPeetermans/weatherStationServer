@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import dataBase.Parser;
 import dataBase.helpers.BasisData;
@@ -100,13 +99,13 @@ public class graphServer extends Server {
 						for (int j = 0; j < basisData.time.size(); j++) {
 							//float pointX = this.getX(days.get(0), basisData.time.get(j), period);
 							//long pointX = this.getXUNIX(basisData.time.get(j));
-							basisPoints = basisPoints.concat(Float.toString(basisData.temperature.get(j))).concat(",").concat(Float.toString(basisData.moisture.get(j))).concat(",").concat(Integer.toString(basisData.light.get(j))).concat(",");
+							basisPoints = basisPoints.concat(this.float2String(basisData.temperature.get(j))).concat(",").concat(this.float2String(basisData.moisture.get(j))).concat(",").concat(this.int2String(basisData.light.get(j))).concat(",");
 						}
 						nbSensor1Points = nbSensor1Points + sensor1Data.time.size();
 						for (int j = 0; j < sensor1Data.time.size(); j++) {
 							//float pointX = this.getX(days.get(0), sensor1Data.time.get(j), period);
 							//long pointX = this.getXUNIX(sensor1Data.time.get(j));
-							sensor1Points = sensor1Points.concat(Float.toString(sensor1Data.temperature.get(j))).concat(",").concat(Float.toString(sensor1Data.moisture.get(j))).concat(",").concat(Integer.toString(sensor1Data.light.get(j))).concat(",").concat(Float.toString(sensor1Data.pressure.get(j))).concat(",").concat(Float.toString(sensor1Data.panelVoltage.get(j))).concat(",").concat(Float.toString(sensor1Data.batteryVoltage.get(j))).concat(",");
+							sensor1Points = sensor1Points.concat(this.float2String(sensor1Data.temperature.get(j))).concat(",").concat(this.float2String(sensor1Data.moisture.get(j))).concat(",").concat(this.int2String(sensor1Data.light.get(j))).concat(",").concat(this.float2String(sensor1Data.pressure.get(j))).concat(",").concat(this.float2String(sensor1Data.panelVoltage.get(j))).concat(",").concat(this.float2String(sensor1Data.batteryVoltage.get(j))).concat(",");
 						}
 					}
 					result = result.concat("2#BASIS#");
@@ -128,17 +127,17 @@ public class graphServer extends Server {
 						
 						nbBasisPoints = nbBasisPoints + 1;
 						if (basisData.time.size() != 0) {
-							basisPoints = basisPoints.concat(Float.toString(basisData.getMeanFloat(basisData.temperature))).concat(",").concat(Float.toString(basisData.getMeanFloat(basisData.moisture))).concat(",").concat(Integer.toString(basisData.getMeanInt(basisData.light))).concat(",");
+							basisPoints = basisPoints.concat(this.float2String(basisData.getMeanFloat(basisData.temperature))).concat(",").concat(this.float2String(basisData.getMeanFloat(basisData.moisture))).concat(",").concat(this.int2String(basisData.getMeanInt(basisData.light))).concat(",");
 						}
 						else {
-							basisPoints = basisPoints.concat("0,0,0,");
+							basisPoints = basisPoints.concat("*,*,*,");
 						}
 						nbSensor1Points = nbSensor1Points + 1;
 						if (sensor1Data.time.size() != 0) {
-							sensor1Points = sensor1Points.concat(Float.toString(sensor1Data.getMeanFloat(sensor1Data.temperature))).concat(",").concat(Float.toString(sensor1Data.getMeanFloat(sensor1Data.moisture))).concat(",").concat(Integer.toString(sensor1Data.getMeanInt(sensor1Data.light))).concat(",").concat(Float.toString(sensor1Data.getMeanFloat(sensor1Data.pressure))).concat(",").concat(Float.toString(sensor1Data.getMeanFloat(sensor1Data.panelVoltage))).concat(",").concat(Float.toString(sensor1Data.getMeanFloat(sensor1Data.batteryVoltage))).concat(",");
+							sensor1Points = sensor1Points.concat(this.float2String(sensor1Data.getMeanFloat(sensor1Data.temperature))).concat(",").concat(this.float2String(sensor1Data.getMeanFloat(sensor1Data.moisture))).concat(",").concat(this.int2String(sensor1Data.getMeanInt(sensor1Data.light))).concat(",").concat(this.float2String(sensor1Data.getMeanFloat(sensor1Data.pressure))).concat(",").concat(this.float2String(sensor1Data.getMeanFloat(sensor1Data.panelVoltage))).concat(",").concat(this.float2String(sensor1Data.getMeanFloat(sensor1Data.batteryVoltage))).concat(",");
 						}
 						else {
-							sensor1Points = sensor1Points.concat("0,0,0,0,0,0,");
+							sensor1Points = sensor1Points.concat("*,*,*,*,*,*,");
 						}
 					}
 					result = result.concat("2#BASIS#");
@@ -169,45 +168,67 @@ public class graphServer extends Server {
 		return result;
 	}
 	
-	private long getXUNIX(Calendar current) {
-		return current.getTime().getTime();
+	private String int2String(Integer in) {
+		String result;
+		if (in == null) {
+			result = "*";
+		}
+		else {
+			result = Integer.toString(in);
+		}
+		return result;
 	}
 	
-	private float getX(Calendar start, Calendar current, int period) {
-		start.set(Calendar.SECOND, 0);
-		start.set(Calendar.MINUTE, 0);
-		start.set(Calendar.HOUR, 0);
-		float x = 0;
-		switch (period) {
-			case 0:
-				x = (float) ((current.get(Calendar.HOUR_OF_DAY) + current.get(Calendar.MINUTE)/60.0 + current.get(Calendar.SECOND)/60.0/60.0)/24.0);
-				break;
-			case 1:
-				long diff = current.getTime().getTime() - start.getTime().getTime();
-				int days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-				x = (float) ((days + current.get(Calendar.HOUR_OF_DAY)/24.0 + current.get(Calendar.MINUTE)/60.0/24.0 + current.get(Calendar.SECOND)/60.0/60.0/24.0)/7.0);
-				break;
-			case 2:
-				diff = current.getTime().getTime() - start.getTime().getTime();
-				days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-				x = (float) ((days + current.get(Calendar.HOUR_OF_DAY)/24.0 + current.get(Calendar.MINUTE)/60.0/24.0 + current.get(Calendar.SECOND)/60.0/60.0/24.0)/current.getActualMaximum(Calendar.DATE));
-				break;
-			case 3:
-				diff = current.getTime().getTime() - start.getTime().getTime();
-				days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-				x = (float) ((float) days/current.getActualMaximum(Calendar.DAY_OF_YEAR));
-				break;
-			case 4:
-				Calendar today = Calendar.getInstance();
-				long diffT = today.getTime().getTime() - start.getTime().getTime();
-				int daysT = (int) TimeUnit.DAYS.convert(diffT, TimeUnit.MILLISECONDS);
-				diff = current.getTime().getTime() - start.getTime().getTime();
-				days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-				x = (float) ((float) days/daysT);
-				break;
+	private String float2String(Float in) {
+		String result;
+		if (in == null) {
+			result = "*";
 		}
-		return x;
+		else {
+			result = Float.toString(in);
+		}
+		return result;
 	}
+	
+//	private long getXUNIX(Calendar current) {
+//		return current.getTime().getTime();
+//	}
+	
+//	private float getX(Calendar start, Calendar current, int period) {
+//		start.set(Calendar.SECOND, 0);
+//		start.set(Calendar.MINUTE, 0);
+//		start.set(Calendar.HOUR, 0);
+//		float x = 0;
+//		switch (period) {
+//			case 0:
+//				x = (float) ((current.get(Calendar.HOUR_OF_DAY) + current.get(Calendar.MINUTE)/60.0 + current.get(Calendar.SECOND)/60.0/60.0)/24.0);
+//				break;
+//			case 1:
+//				long diff = current.getTime().getTime() - start.getTime().getTime();
+//				int days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+//				x = (float) ((days + current.get(Calendar.HOUR_OF_DAY)/24.0 + current.get(Calendar.MINUTE)/60.0/24.0 + current.get(Calendar.SECOND)/60.0/60.0/24.0)/7.0);
+//				break;
+//			case 2:
+//				diff = current.getTime().getTime() - start.getTime().getTime();
+//				days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+//				x = (float) ((days + current.get(Calendar.HOUR_OF_DAY)/24.0 + current.get(Calendar.MINUTE)/60.0/24.0 + current.get(Calendar.SECOND)/60.0/60.0/24.0)/current.getActualMaximum(Calendar.DATE));
+//				break;
+//			case 3:
+//				diff = current.getTime().getTime() - start.getTime().getTime();
+//				days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+//				x = (float) ((float) days/current.getActualMaximum(Calendar.DAY_OF_YEAR));
+//				break;
+//			case 4:
+//				Calendar today = Calendar.getInstance();
+//				long diffT = today.getTime().getTime() - start.getTime().getTime();
+//				int daysT = (int) TimeUnit.DAYS.convert(diffT, TimeUnit.MILLISECONDS);
+//				diff = current.getTime().getTime() - start.getTime().getTime();
+//				days = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+//				x = (float) ((float) days/daysT);
+//				break;
+//		}
+//		return x;
+//	}
 	
 	private String getPeriodName(int period, int which) {
 		String result = "";

@@ -225,7 +225,7 @@ public abstract class DataObject {
 		int nbSamples = (int) (24.0*60/minutes);
 		if (!this.exist) {
 			for (int i = 0; i < nbSamples; i++) {
-				data.add((float) 0);
+				data.add(null);
 			}
 			return;
 		}
@@ -254,7 +254,7 @@ public abstract class DataObject {
 							nbLastOne --;
 						}
 						else {
-							result.add((float) 0);
+							result.add(null);
 						}
 					}
 				}
@@ -269,7 +269,7 @@ public abstract class DataObject {
 							nbFirstOne --;
 						}
 						else {
-							result.add((float) 0);
+							result.add(null);
 						}
 					}
 				}
@@ -298,7 +298,7 @@ public abstract class DataObject {
 		int nbSamples = (int) (24.0*60/minutes);
 		if (!this.exist) {
 			for (int i = 0; i < nbSamples; i++) {
-				data.add(0);
+				data.add(null);
 			}
 			return;
 		}
@@ -326,7 +326,7 @@ public abstract class DataObject {
 							nbLastOne --;
 						}
 						else {
-							result.add(0);
+							result.add(null);
 						}
 					}
 				}
@@ -341,7 +341,7 @@ public abstract class DataObject {
 							nbFirstOne --;
 						}
 						else {
-							result.add(0);
+							result.add(null);
 						}
 					}
 				}

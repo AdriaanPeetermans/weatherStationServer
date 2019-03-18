@@ -1,5 +1,5 @@
-f = fopen('03_.txt','w');
-for i = 1 : 143
+f = fopen('04_.txt','w');
+for i = 1 : 139
    fprintf(f,num2str(Light(i),3));
    fprintf(f,',');
    fprintf(f,num2str(Moisture(i),4));
