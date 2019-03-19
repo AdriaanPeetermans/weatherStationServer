@@ -413,4 +413,30 @@ public abstract class DataObject {
 		}
 		return (int) (result / data.size());
 	}
+	
+	public float getMaxFloat(ArrayList<Float> data) {
+		if (data.size() == 0) {
+			return -1;
+		}
+		float max = data.get(0);
+		for (float d : data) {
+			if (d > max) {
+				max = d;
+			}
+		}
+		return max;
+	}
+	
+	public float getMinFloat(ArrayList<Float> data) {
+		if (data.size() == 0) {
+			return -1;
+		}
+		float min = data.get(0);
+		for (float d : data) {
+			if (d < min) {
+				min = d;
+			}
+		}
+		return min;
+	}
 }

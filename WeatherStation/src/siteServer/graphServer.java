@@ -30,7 +30,7 @@ public class graphServer extends Server {
 	 * 		%GraphType% + "#" + %PeriodLength% + "#" + %WhichPeriod% + "#" + %Minutes% + "#" + %startMinute%
 	 * 			GraphType:
 	 * 				0:	Temp+Moist+Press+Light+PV+BV
-	 * 				1:	MaxTemp+MinTemp+MeanTemp
+	 * 				1:	MaxTemp+MinTemp
 	 * 				2:	TimeSunUp+TimeSunDown+SunTime
 	 * 				3:	LightIntensity
 	 * 			PeriodLength:
@@ -144,8 +144,41 @@ public class graphServer extends Server {
 					result = result.concat(Integer.toString(nbBasisPoints)).concat("#").concat(basisPoints).concat("#SENSOR1#").concat(Integer.toString(nbSensor1Points)).concat("#").concat(sensor1Points).concat("#");
 				}
 				break;
-			case 1:		//MaxTemp+MinTemp+MeanTemp
-				
+			case 1:		//MaxTemp+MinTemp
+				if (period == 0) {
+					return "ERROR";
+				}
+				String basisPoints = "";
+				String sensor1Points = "";
+				int nbBasisPoints = 0;
+				int nbSensor1Points = 0;
+				System.out.println(days.size());
+				for (int i = 0; i < days.size(); i++) {
+					Parser basisParser = new Parser("BASIS", days.get(i).get(Calendar.YEAR), days.get(i).get(Calendar.MONTH)+1, days.get(i).get(Calendar.DATE), true);
+					Parser sensor1Parser = new Parser("SENSOR1", days.get(i).get(Calendar.YEAR), days.get(i).get(Calendar.MONTH)+1, days.get(i).get(Calendar.DATE), true);
+					BasisData basisData = (BasisData) basisParser.readFile();
+					Sensor1Data sensor1Data = (Sensor1Data) sensor1Parser.readFile();
+					
+					basisData.fixData();
+					sensor1Data.fixData();
+					
+					nbBasisPoints = nbBasisPoints + 1;
+					if (basisData.time.size() != 0) {
+						basisPoints = basisPoints.concat(this.float2String(basisData.getMaxFloat(basisData.temperature))).concat(",").concat(this.float2String(basisData.getMinFloat(basisData.temperature))).concat(",");
+					}
+					else {
+						basisPoints = basisPoints.concat("*,*,");
+					}
+					nbSensor1Points = nbSensor1Points + 1;
+					if (sensor1Data.time.size() != 0) {
+						sensor1Points = sensor1Points.concat(this.float2String(sensor1Data.getMaxFloat(sensor1Data.temperature))).concat(",").concat(this.float2String(sensor1Data.getMinFloat(sensor1Data.temperature))).concat(",");
+					}
+					else {
+						sensor1Points = sensor1Points.concat("*,*,");
+					}
+				}
+				result = result.concat("2#BASIS#");
+				result = result.concat(Integer.toString(nbBasisPoints)).concat("#").concat(basisPoints).concat("#SENSOR1#").concat(Integer.toString(nbSensor1Points)).concat("#").concat(sensor1Points).concat("#");
 				break;
 		}
 		return result;
