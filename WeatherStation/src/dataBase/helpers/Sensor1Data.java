@@ -104,5 +104,34 @@ public class Sensor1Data extends DataObject {
 		}
 		return result;
 	}
-
+	
+	public String getSunUpTime() {
+		if (this.time.size() == 0) {
+			return "*";
+		}
+		float prev = this.panelVoltage.get(0);
+		for (int i = 1; i < this.time.size(); i++) {
+			float pv = this.panelVoltage.get(i);
+			if ((prev <= 2.5) && (pv > 2.5)) {
+				return this.extendString((this.time.get(i).get(Calendar.HOUR_OF_DAY)),2).concat(this.extendString(this.time.get(i).get(Calendar.MINUTE), 2));
+			}
+			prev = pv;
+		}
+		return "*";
+	}
+	
+	public String getSunDownTime() {
+		if (this.time.size() == 0) {
+			return "*";
+		}
+		float prev = this.panelVoltage.get(0);
+		for (int i = 1; i < this.time.size(); i++) {
+			float pv = this.panelVoltage.get(i);
+			if ((prev > 2.5) && (pv <= 2.5)) {
+				return this.extendString((this.time.get(i-1).get(Calendar.HOUR_OF_DAY)),2).concat(this.extendString(this.time.get(i-1).get(Calendar.MINUTE), 2));
+			}
+			prev = pv;
+		}
+		return "*";
+	}
 }

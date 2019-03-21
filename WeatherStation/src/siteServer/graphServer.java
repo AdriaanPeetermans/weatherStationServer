@@ -144,7 +144,7 @@ public class graphServer extends Server {
 					result = result.concat(Integer.toString(nbBasisPoints)).concat("#").concat(basisPoints).concat("#SENSOR1#").concat(Integer.toString(nbSensor1Points)).concat("#").concat(sensor1Points).concat("#");
 				}
 				break;
-			case 1:		//MaxTemp+MinTemp
+			case 1:		//MaxTemp+MinTemp+SunUp+SunDown
 				if (period == 0) {
 					return "ERROR";
 				}
@@ -152,7 +152,6 @@ public class graphServer extends Server {
 				String sensor1Points = "";
 				int nbBasisPoints = 0;
 				int nbSensor1Points = 0;
-				System.out.println(days.size());
 				for (int i = 0; i < days.size(); i++) {
 					Parser basisParser = new Parser("BASIS", days.get(i).get(Calendar.YEAR), days.get(i).get(Calendar.MONTH)+1, days.get(i).get(Calendar.DATE), true);
 					Parser sensor1Parser = new Parser("SENSOR1", days.get(i).get(Calendar.YEAR), days.get(i).get(Calendar.MONTH)+1, days.get(i).get(Calendar.DATE), true);
@@ -171,10 +170,10 @@ public class graphServer extends Server {
 					}
 					nbSensor1Points = nbSensor1Points + 1;
 					if (sensor1Data.time.size() != 0) {
-						sensor1Points = sensor1Points.concat(this.float2String(sensor1Data.getMaxFloat(sensor1Data.temperature))).concat(",").concat(this.float2String(sensor1Data.getMinFloat(sensor1Data.temperature))).concat(",");
+						sensor1Points = sensor1Points.concat(this.float2String(sensor1Data.getMaxFloat(sensor1Data.temperature))).concat(",").concat(this.float2String(sensor1Data.getMinFloat(sensor1Data.temperature))).concat(",").concat(sensor1Data.getSunUpTime()).concat(",").concat(sensor1Data.getSunDownTime()).concat(",");
 					}
 					else {
-						sensor1Points = sensor1Points.concat("*,*,");
+						sensor1Points = sensor1Points.concat("*,*,*,*,");
 					}
 				}
 				result = result.concat("2#BASIS#");
