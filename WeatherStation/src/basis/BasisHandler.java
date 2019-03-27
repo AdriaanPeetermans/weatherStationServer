@@ -145,7 +145,7 @@ public class BasisHandler {
 		return result;
 	}
 	
-	private String sendToBasis(String message) throws BasisException {
+	public String sendToBasis(String message) throws BasisException {
 		String answer = null;
 		try {
 			Socket clientSocket = new Socket(this.ip, this.port);

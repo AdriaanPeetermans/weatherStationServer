@@ -1,7 +1,9 @@
 package dataBase;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -59,6 +61,17 @@ public class Parser {
 			out.close();
 		}
 		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void appendFile(String data) {
+		try (FileWriter fw = new FileWriter(this.giveFileName(), true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				PrintWriter out = new PrintWriter(bw)) {
+			out.print(data);
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

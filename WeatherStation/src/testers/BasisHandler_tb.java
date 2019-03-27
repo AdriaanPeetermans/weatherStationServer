@@ -11,9 +11,9 @@ public class BasisHandler_tb {
 		//WeatherData[] data = parser.parseFile();
 		//System.out.println(bh.createTextForecast(data[0]));
 		try {
-			//bh.setTime();
+			bh.setTime();
 			//System.out.println(bh.getDayIndex());
-			bh.transferFiles(7);
+			//bh.transferFiles(4);
 			//bh.setDayCounter(8);
 		} catch (BasisException e) {
 			e.printStackTrace();
