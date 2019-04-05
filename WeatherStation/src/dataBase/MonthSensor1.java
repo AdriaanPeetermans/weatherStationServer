@@ -23,7 +23,7 @@ public class MonthSensor1 extends MonthDataParser {
 		String line = reader.readLine();
 		while (line != null) {
 			System.out.println(line);
-			
+			if 
 			line = reader.readLine();
 		}
 		reader.close();
