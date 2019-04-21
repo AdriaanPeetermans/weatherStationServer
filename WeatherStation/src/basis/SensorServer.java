@@ -88,6 +88,7 @@ public class SensorServer {
 	}
 	
 	private void handleSensor1(String message) {
+		System.out.println(message);
 		String[] parts = message.split("#");
 		int light = Integer.parseInt(parts[0]);
 		float temp1 = Float.parseFloat(parts[1]);
