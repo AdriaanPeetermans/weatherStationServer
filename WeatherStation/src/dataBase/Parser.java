@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import dataBase.helpers.BasisData;
 import dataBase.helpers.DataObject;
@@ -103,5 +104,37 @@ public class Parser {
 		}
 		result.parse();
 		return result;
+	}
+	
+	public ArrayList<String> readLines() {
+		DataObject dataObject;
+		switch (this.type) {
+			case "BASIS":
+				dataObject = new BasisData(this.day, this.month, this.year);
+				break;
+			case "SENSOR1":
+				dataObject = new Sensor1Data(this.day, this.month, this.year);
+				break;
+			default:
+				dataObject = null;
+				break;
+		}
+		return dataObject.getLines();
+	}
+	
+	public String getSize() {
+		DataObject dataObject;
+		switch (this.type) {
+			case "BASIS":
+				dataObject = new BasisData(this.day, this.month, this.year);
+				break;
+			case "SENSOR1":
+				dataObject = new Sensor1Data(this.day, this.month, this.year);
+				break;
+			default:
+				dataObject = null;
+				break;
+		}
+		return dataObject.getSize();
 	}
 }

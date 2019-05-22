@@ -74,17 +74,16 @@ public class BasisData extends DataObject {
 		this.time.add(cal);
 	}
 	
-	private String extendString(int value, int length) {
-		String result = Integer.toString(value);
-		if (result.length() > length) {
-			return result.substring(result.length()-length, result.length());
-		}
-		for (int i = 1; i <= length; i++) {
-			if (result.length() < i) {
-				result = "0".concat(result);
-			}
-		}
-		return result;
-	}
-
+//	private String extendString(int value, int length) {
+//		String result = Integer.toString(value);
+//		if (result.length() > length) {
+//			return result.substring(result.length()-length, result.length());
+//		}
+//		for (int i = 1; i <= length; i++) {
+//			if (result.length() < i) {
+//				result = "0".concat(result);
+//			}
+//		}
+//		return result;
+//	}
 }

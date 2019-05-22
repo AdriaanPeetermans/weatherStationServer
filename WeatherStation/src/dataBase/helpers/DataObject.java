@@ -1,5 +1,9 @@
 package dataBase.helpers;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -438,5 +442,49 @@ public abstract class DataObject {
 			}
 		}
 		return min;
+	}
+	
+	public ArrayList<String> getLines() {
+		ArrayList<String> result = new ArrayList<String>(242);
+		try {
+			File file = new File("src/dataBase/".concat(this.type).concat("/").concat(Integer.toString(this.year).concat("/").concat(this.extendString(this.month, 2).concat("/")).concat(this.extendString(this.day, 2)).concat(".txt")));
+			if (!file.exists()) {
+				return null;
+			}
+			this.exist = true;
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String st = br.readLine();
+			while (st != null) {
+				result.add(st);
+				st = br.readLine();
+			}
+			br.close();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public String getSize() {
+		File file = new File("src/dataBase/".concat(this.type).concat("/").concat(Integer.toString(this.year).concat("/").concat(this.extendString(this.month, 2).concat("/")).concat(this.extendString(this.day, 2)).concat(".txt")));
+		if (!file.exists()) {
+			return null;
+		}
+		this.exist = true;
+		return Long.toString(file.length());
+	}
+	
+	protected String extendString(int value, int length) {
+		String result = Integer.toString(value);
+		if (result.length() > length) {
+			return result.substring(result.length()-length, result.length());
+		}
+		for (int i = 1; i <= length; i++) {
+			if (result.length() < i) {
+				result = "0".concat(result);
+			}
+		}
+		return result;
 	}
 }
