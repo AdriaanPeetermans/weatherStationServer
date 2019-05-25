@@ -32,10 +32,10 @@ public class FileFolderStructure {
 				continue;
 			}
 			if (listOfFiles[i].isFile()) {
-				result.add(new FileFolder(1, listOfFiles[i].getName(), Long.toString(listOfFiles[i].length())));
+				result.add(new FileFolder(1, listOfFiles[i].getName(), Double.toString(((double) listOfFiles[i].length())/1000)));
 			}
 			else if (listOfFiles[i].isDirectory()) {
-				result.add(new FileFolder(0, listOfFiles[i].getName(), Long.toString(listOfFiles[i].length())));
+				result.add(new FileFolder(0, listOfFiles[i].getName(), "-"));
 			}
 		}
 		result.sort(null);

@@ -1,9 +1,12 @@
 package siteServer;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import dataBase.FileFolderStructure;
 import dataBase.Parser;
+import dataBase.ZipHandler;
 import dataBase.helpers.FileFolder;
 import siteServer.helpers.SocketMessage;
 
@@ -19,10 +22,12 @@ public class FilesServer extends Server {
 	/**
 	 * Incoming message: type#database/path/to/folder. Always starting with database.
 	 * type: 0: folder, 1: file.
+	 * type: 2: download files/folders, message: 2#path/to/parent/folder#numberFileFolders#fileFolderName0# ... #fileFolderNamen#
 	 * 
 	 * Outgoing message:
 	 * 		type 0: 0#numberOfFileFolders#type0#sizeString0#name0# ... typen#sizeStringn#namen#
 	 * 		type 1: 1#numberOfLines#sizeInBytes#line0#line1# ... #linen#
+	 * 		type 2: 2#length#zipFile
 	 * 
 	 * If error: ERROR
 	 */
@@ -30,6 +35,10 @@ public class FilesServer extends Server {
 	public void handleMessage(SocketMessage t) {
 		System.out.println(t.message);
 		String[] parts = t.message.split("#");
+		if (Integer.parseInt(parts[0]) == 2) {
+			this.downloadFileFolders(t, parts);
+			return;
+		}
 		if (parts.length != 2) {
 			t.sock.send("ERROR");
 			return;
@@ -82,5 +91,34 @@ public class FilesServer extends Server {
 				t.sock.send(answer);
 				break;
 		}
+	}
+	
+	/**
+	 * type: 2: download files/folders, message: 2#path/to/parent/folder#numberFileFolders#fileFolderName0# ... #fileFolderNamen#
+	 */
+	public void downloadFileFolders(SocketMessage t, String[] parts) {
+		String parentPath = parts[1];
+		int number = Integer.parseInt(parts[2]);
+		ZipHandler zipHandler = new ZipHandler();
+		for (int i = 0; i < number; i++) {
+			File file = new File("src/dataBase".concat(parentPath.substring(8)).concat("/").concat(parts[i+3]));
+			if (file.isDirectory()) {
+				zipHandler.addFolderToZip(parentPath.concat("/").concat(parts[i+3]));
+			}
+			else {
+				zipHandler.addFileToZip(parentPath.concat("/").concat(parts[i+3]));
+			}
+		}
+		byte[] dataFile = zipHandler.getZip();
+		byte[] dataLength = "2#".concat(Integer.toString(dataFile.length)).concat("#").getBytes();
+		byte[] answer = new byte[dataLength.length+dataFile.length];
+		for (int i = 0; i < dataLength.length; i++) {
+			answer[i] = dataLength[i];
+		}
+		for (int i = 0; i < dataFile.length; i++) {
+			answer[i+dataLength.length] = dataFile[i];
+		}
+		System.out.println(Arrays.toString(answer));
+		t.sock.send(answer);
 	}
 }

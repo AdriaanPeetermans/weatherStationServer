@@ -472,7 +472,7 @@ public abstract class DataObject {
 			return null;
 		}
 		this.exist = true;
-		return Long.toString(file.length());
+		return Double.toString(((double) file.length())/1000);
 	}
 	
 	protected String extendString(int value, int length) {
