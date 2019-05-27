@@ -32,7 +32,7 @@ public class BASISToPiDBUpdater extends Updater {
 			for (int i = data.size()-1; i >= 0; i--) {
 				int lastDays = BASISToPiDBUpdater.getLastDays(data.get(i).split(" ")[2]);
 				Parser parser = dbManager.addFolder(lastDays);
-				parser.appendFile(data.get(i));
+				parser.appendFile(data.get(i).concat("\r\n"));
 			}
 		}
 		catch (BasisException e) {
@@ -44,7 +44,7 @@ public class BASISToPiDBUpdater extends Updater {
 		String[] parts = date.split("/");
 		int day = Integer.parseInt(parts[0]);
 		int month = Integer.parseInt(parts[1]);
-		int year = Integer.parseInt(parts[2]);
+		int year = 2000+Integer.parseInt(parts[2]);
 		Calendar now = Calendar.getInstance();
 		Calendar cal = (Calendar) now.clone();
 		cal.set(Calendar.DATE, day);
