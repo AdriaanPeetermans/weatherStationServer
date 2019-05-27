@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import basis.helpers.BasisLiveData;
@@ -267,5 +268,23 @@ public class BasisHandler {
 		}
 		Calendar time = Calendar.getInstance();
 		return new BasisLiveData(Float.parseFloat(parts[0]), Float.parseFloat(parts[1]), Float.parseFloat(parts[2]), Float.parseFloat(parts[3]), Float.parseFloat(parts[4]), Float.parseFloat(parts[5]), Float.parseFloat(parts[6]), Integer.parseInt(parts[7]), Integer.parseInt(parts[8]), Float.parseFloat(parts[9]), Float.parseFloat(parts[10]), time);
+	}
+	
+	public ArrayList<String> getBasisToPiData() throws BasisException {
+		String answer = this.sendToBasis("P05\r\n");
+		String type = answer.substring(0,3);
+		if (!type.equals("B05")) {
+			throw new BasisException("Communication with BASIS failed! Wrong type.");
+		}
+		String[] parts = answer.substring(4).split("#");
+		int number = Integer.parseInt(parts[0]);
+		if (parts.length != number+1) {
+			throw new BasisException("Communication with BASIS failed! Wrong length.");
+		}
+		ArrayList<String> result = new ArrayList<String>(number);
+		for (int i = 0; i < number; i++) {
+			result.add(parts[i+1]);
+		}
+		return result;
 	}
 }

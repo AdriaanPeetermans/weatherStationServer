@@ -31,6 +31,9 @@ public class FileFolderStructure {
 			if ((pathString.equals("src/dataBase")) && (listOfFiles[i].getName().equals("helpers"))) {
 				continue;
 			}
+			if ((pathString.equals("src/dataBase")) && (listOfFiles[i].getName().equals("ZipFiles"))) {
+				continue;
+			}
 			if (listOfFiles[i].isFile()) {
 				result.add(new FileFolder(1, listOfFiles[i].getName(), Double.toString(((double) listOfFiles[i].length())/1000)));
 			}

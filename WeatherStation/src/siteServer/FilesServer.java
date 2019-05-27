@@ -2,7 +2,6 @@ package siteServer;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import dataBase.FileFolderStructure;
 import dataBase.Parser;
@@ -118,7 +117,6 @@ public class FilesServer extends Server {
 		for (int i = 0; i < dataFile.length; i++) {
 			answer[i+dataLength.length] = dataFile[i];
 		}
-		System.out.println(Arrays.toString(answer));
 		t.sock.send(answer);
 	}
 }
