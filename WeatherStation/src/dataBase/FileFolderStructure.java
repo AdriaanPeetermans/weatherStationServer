@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import dataBase.helpers.DateObject;
 import dataBase.helpers.FileFolder;
 
 public class FileFolderStructure {
@@ -35,10 +36,24 @@ public class FileFolderStructure {
 				continue;
 			}
 			if (listOfFiles[i].isFile()) {
-				result.add(new FileFolder(1, listOfFiles[i].getName(), Double.toString(((double) listOfFiles[i].length())/1000)));
+				HardDriveParser parser = new HardDriveParser();
+				String filePath = listOfFiles[i].getPath();
+				String[] pathParts = filePath.split("/");
+				String onDisk;
+				if ((!pathParts[2].equals("BASIS")) && (!pathParts[2].equals("SENSOR1")) && (!pathParts[2].equals("SENSOR2"))) {
+					onDisk = "false";
+				}
+				else {
+					int day = Integer.parseInt(listOfFiles[i].getName().split("\\.")[0]);
+					int month = Integer.parseInt(pathParts[pathParts.length-2]);
+					int year = Integer.parseInt(pathParts[pathParts.length-3])-2000;
+					String type = pathParts[pathParts.length-4];
+					onDisk = Boolean.toString(parser.onDisk(new DateObject(day, month, year, type)));
+				}
+				result.add(new FileFolder(1, listOfFiles[i].getName(), Double.toString(((double) listOfFiles[i].length())/1000), onDisk));
 			}
 			else if (listOfFiles[i].isDirectory()) {
-				result.add(new FileFolder(0, listOfFiles[i].getName(), "-"));
+				result.add(new FileFolder(0, listOfFiles[i].getName(), "-", "-"));
 			}
 		}
 		result.sort(null);

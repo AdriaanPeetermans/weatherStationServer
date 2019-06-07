@@ -93,4 +93,9 @@ public class HardDriveParser {
 			this.appendDate(d);
 		}
 	}
+	
+	public boolean onDisk(DateObject date) {
+		HashSet<DateObject> dates = this.getDates();
+		return !dates.contains(date);
+	}
 }

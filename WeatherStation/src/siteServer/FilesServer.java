@@ -24,7 +24,7 @@ public class FilesServer extends Server {
 	 * type: 2: download files/folders, message: 2#path/to/parent/folder#numberFileFolders#fileFolderName0# ... #fileFolderNamen#
 	 * 
 	 * Outgoing message:
-	 * 		type 0: 0#numberOfFileFolders#type0#sizeString0#name0# ... typen#sizeStringn#namen#
+	 * 		type 0: 0#numberOfFileFolders#type0#sizeString0#onDisk0#name0# ... typen#sizeStringn#onDiskn#namen#
 	 * 		type 1: 1#numberOfLines#sizeInBytes#line0#line1# ... #linen#
 	 * 		type 2: 2#length#zipFile
 	 * 
@@ -65,7 +65,7 @@ public class FilesServer extends Server {
 				}
 				answer = "0#".concat(Integer.toString(files.size())).concat("#");
 				for (FileFolder i : files) {
-					answer = answer.concat(Integer.toString(i.type)).concat("#").concat(i.size).concat("#").concat(i.name).concat("#");
+					answer = answer.concat(Integer.toString(i.type)).concat("#").concat(i.size).concat("#").concat(i.onDisk).concat("#").concat(i.name).concat("#");
 				}
 				System.out.println(answer);
 				t.sock.send(answer);
