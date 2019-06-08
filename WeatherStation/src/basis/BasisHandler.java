@@ -150,6 +150,7 @@ public class BasisHandler {
 		String answer = null;
 		try {
 			Socket clientSocket = new Socket(this.ip, this.port);
+			clientSocket.setSoTimeout(10000);
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			outToServer.writeBytes(message);

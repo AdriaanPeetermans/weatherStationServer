@@ -33,7 +33,7 @@ public class SensorServer {
 	
 	private int sensor2RefreshMinutes = 5;
 	
-	public void run() throws IOException, BasisException {
+	public void run() throws IOException {
 		String clientMessage;
 		String clientAnswer;
 		while (true) {
@@ -43,14 +43,19 @@ public class SensorServer {
 			clientMessage = inFromClient.readLine();
 			clientAnswer = this.handleMessage(clientMessage);
 			outToClient.writeBytes(clientAnswer.concat("\r\n"));
-			String refreshMinutes = this.bh.sendToBasis(clientMessage.concat("\r\n"));
-			switch (clientMessage.charAt(0)) {
-				case '1':
-					this.sensor1RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
-					break;
-				case '2':
-					this.sensor2RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
-					break;
+			try {
+				String refreshMinutes = this.bh.sendToBasis(clientMessage.concat("\r\n"));
+				switch (clientMessage.charAt(0)) {
+					case '1':
+						this.sensor1RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
+						break;
+					case '2':
+						this.sensor2RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
+						break;
+				}
+			}
+			catch (BasisException | NullPointerException | NumberFormatException e) {
+				e.printStackTrace();
 			}
 		}
 	}
