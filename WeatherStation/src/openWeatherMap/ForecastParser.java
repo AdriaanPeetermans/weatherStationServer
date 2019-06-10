@@ -14,7 +14,7 @@ public class ForecastParser {
 	}
 	
 	public ForecastParser() {
-		this("/Users/adriaanpeetermans/Documents/workspace/WeatherStation/src/openWeatherMap/forecast.txt");
+		this("src/openWeatherMap/forecast.txt");
 	}
 	
 	public final String file;

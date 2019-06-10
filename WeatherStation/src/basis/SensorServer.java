@@ -19,6 +19,7 @@ public class SensorServer {
 		this.basisPort = basisPort;
 		this.welcomeSocket = new ServerSocket(thisPort);
 		this.bh = new BasisHandler(this.basisIP, this.basisPort, 10, 5, 5);
+		this.smc = new SingleMessageConnector(this.basisIP, this.basisPort, 15, 60, 30);
 	}
 	
 	private final String basisIP;
@@ -33,6 +34,8 @@ public class SensorServer {
 	
 	private int sensor2RefreshMinutes = 5;
 	
+	private final SingleMessageConnector smc;
+	
 	public void run() throws IOException {
 		String clientMessage;
 		String clientAnswer;
@@ -43,8 +46,12 @@ public class SensorServer {
 			clientMessage = inFromClient.readLine();
 			clientAnswer = this.handleMessage(clientMessage);
 			outToClient.writeBytes(clientAnswer.concat("\r\n"));
-			try {
-				String refreshMinutes = this.bh.sendToBasis(clientMessage.concat("\r\n"));
+//			try {
+				//SingleMessageConnection
+				//String refreshMinutes = this.bh.sendToBasis(clientMessage.concat("\r\n"));
+				String refreshMinutes = this.smc.sendSingleMessage(clientMessage);
+				//SingleMessageConnection
+				
 				switch (clientMessage.charAt(0)) {
 					case '1':
 						this.sensor1RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
@@ -53,10 +60,10 @@ public class SensorServer {
 						this.sensor2RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
 						break;
 				}
-			}
-			catch (BasisException | NullPointerException | NumberFormatException e) {
-				e.printStackTrace();
-			}
+//			}
+//			catch (BasisException | NullPointerException | NumberFormatException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 	
