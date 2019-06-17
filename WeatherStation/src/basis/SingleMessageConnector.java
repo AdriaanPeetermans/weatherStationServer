@@ -188,8 +188,8 @@ public class SingleMessageConnector {
 //		this.forecastParser.writeData(data);
 		WeatherData[] data = this.forecastParser.parseFile();
 		String message = "P02 ";
-		message = message.concat(String.format("%02d", 2));
-		for (int i = 0; i < 2; i++) {
+		message = message.concat(String.format("%02d", data.length));
+		for (int i = 0; i < data.length; i++) {
 			message = message.concat(",");
 			message = message.concat(this.createTextForecast(data[i]));
 		}
