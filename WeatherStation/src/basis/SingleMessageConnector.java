@@ -95,11 +95,20 @@ public class SingleMessageConnector {
 		try {
 			System.out.println("Send to basis: ".concat(message));
 			String answer = this.basisHandler.sendToBasis(message);
+			if (answer.length() < 5) {
+				return "B00 5";
+			}
 			answer = answer.substring(4);
 			String[] answerParts = answer.split("@");
 			int numberAnswers = Integer.parseInt(answerParts[0]);
+			if (answerParts.length != numberAnswers+1) {
+				return "B00 5";
+			}
 			for (int i = 0; i < numberAnswers; i++) {
 				this.handleAnswer(answerParts[i+1]);
+				if (answerParts[i+1].length() < 3) {
+					continue;
+				}
 				if (answerParts[i+1].substring(0, 3).equals("B00")) {
 					sensorAnswer = answerParts[i+1];
 				}
@@ -116,20 +125,31 @@ public class SingleMessageConnector {
 	 * 		B05 numberLines#line0#line1# ... #linen#
 	 */
 	private void handleAnswer(String answer) {
+		if (answer.length() < 5) {
+			return;
+		}
 		String type = answer.substring(0, 3);
 		answer = answer.substring(4);
 		if (type.equals("B05")) {
 			String[] parts = answer.split("#");
 			int number = Integer.parseInt(parts[0]);
 			ArrayList<String> lines = new ArrayList<String>(number);
+			if (parts.length != number+1) {
+				return;
+			}
 			for (int i = 0; i < number; i++) {
 				lines.add(parts[i+1]);
 			}
 			DataBaseManager dbManager = new DataBaseManager("BASIS");
 			for (int i = lines.size()-1; i >= 0; i--) {
-				int lastDays = SingleMessageConnector.getLastDays(lines.get(i).split(" ")[2]);
-				Parser parser = dbManager.addFolder(lastDays);
-				parser.appendFile(lines.get(i).concat("\r\n"));
+				try {
+					int lastDays = SingleMessageConnector.getLastDays(lines.get(i).split(" ")[2]);
+					Parser parser = dbManager.addFolder(lastDays);
+					parser.appendFile(lines.get(i).concat("\r\n"));
+				}
+				catch (IndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

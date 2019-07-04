@@ -36,38 +36,46 @@ public class SensorServer {
 	
 	private final SingleMessageConnector smc;
 	
-	public void run() throws IOException {
+	public void run() {
 		String clientMessage;
 		String clientAnswer;
 		while (true) {
-			Socket connectionSocket = welcomeSocket.accept();
-			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-			DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-			clientMessage = inFromClient.readLine();
-			clientAnswer = this.handleMessage(clientMessage);
-			outToClient.writeBytes(clientAnswer.concat("\r\n"));
-//			try {
-				//SingleMessageConnection
-				//String refreshMinutes = this.bh.sendToBasis(clientMessage.concat("\r\n"));
-				String refreshMinutes = this.smc.sendSingleMessage(clientMessage);
-				//SingleMessageConnection
-				
-				switch (clientMessage.charAt(0)) {
-					case '1':
-						this.sensor1RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
-						break;
-					case '2':
-						this.sensor2RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
-						break;
+			try {
+				Socket connectionSocket = welcomeSocket.accept();
+				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+				DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+				clientMessage = inFromClient.readLine();
+				clientAnswer = this.handleMessage(clientMessage);
+				outToClient.writeBytes(clientAnswer.concat("\r\n"));
+				try {
+					//SingleMessageConnection
+					//String refreshMinutes = this.bh.sendToBasis(clientMessage.concat("\r\n"));
+					String refreshMinutes = this.smc.sendSingleMessage(clientMessage);
+					//SingleMessageConnection
+					
+					switch (clientMessage.charAt(0)) {
+						case '1':
+							this.sensor1RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
+							break;
+						case '2':
+							this.sensor2RefreshMinutes = Integer.parseInt(refreshMinutes.substring(4));
+							break;
+					}
 				}
-//			}
-//			catch (BasisException | NullPointerException | NumberFormatException e) {
-//				e.printStackTrace();
-//			}
+				catch (NullPointerException | NumberFormatException e) {
+					e.printStackTrace();
+				}
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	private String handleMessage(String message) {
+		if (message.length() < 5) {
+			return "B00 ".concat(Integer.toString(this.sensor1RefreshMinutes));
+		}
 		char device = message.charAt(0);
 		char type1 = message.charAt(1);
 		char type2 = message.charAt(2);
@@ -102,6 +110,9 @@ public class SensorServer {
 	private void handleSensor1(String message) {
 		System.out.println(message);
 		String[] parts = message.split("#");
+		if (parts.length < 7) {
+			return;
+		}
 		int light = Integer.parseInt(parts[0]);
 		float temp1 = Float.parseFloat(parts[1]);
 		float hum = Float.parseFloat(parts[2]);
