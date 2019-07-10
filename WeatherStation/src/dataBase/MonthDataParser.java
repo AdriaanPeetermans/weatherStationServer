@@ -14,11 +14,11 @@ public abstract class MonthDataParser {
 		this.initFile();
 	}
 	
-	private final String type;
+	protected final String type;
 	
-	private final int year;
+	protected final int year;
 	
-	private final int month;
+	protected final int month;
 	
 	private void initFile() throws IOException {
 		File f = new File(this.getFolder());
@@ -37,7 +37,8 @@ public abstract class MonthDataParser {
 	
 	protected int getNbDays() {
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.MONTH, month-1);
+		cal.set(Calendar.MONTH, this.month-1);
+		cal.set(Calendar.YEAR, this.year);
 		return cal.getMaximum(Calendar.DATE);
 	}
 	
