@@ -51,6 +51,7 @@ public class HardDriveUpdater extends Updater {
 			destFile.delete();
 			try {
 				Files.copy(originFile.toPath(), destFile.toPath());
+				System.out.println(destFile.getAbsolutePath());
 			} catch (IOException e) {
 				e.printStackTrace();
 				continue;
@@ -64,6 +65,6 @@ public class HardDriveUpdater extends Updater {
 		yesterday.add(Calendar.DAY_OF_YEAR, -1);
 		this.parser.appendDate(new DateObject(yesterday.get(Calendar.DAY_OF_MONTH), yesterday.get(Calendar.MONTH)+1, yesterday.get(Calendar.YEAR)-2000, "BASIS"));
 		this.parser.appendDate(new DateObject(yesterday.get(Calendar.DAY_OF_MONTH), yesterday.get(Calendar.MONTH)+1, yesterday.get(Calendar.YEAR)-2000, "SENSOR1"));
-		this.parser.appendDate(new DateObject(yesterday.get(Calendar.DAY_OF_MONTH), yesterday.get(Calendar.MONTH)+1, yesterday.get(Calendar.YEAR)-2000, "SENSOR2"));
+		//this.parser.appendDate(new DateObject(yesterday.get(Calendar.DAY_OF_MONTH), yesterday.get(Calendar.MONTH)+1, yesterday.get(Calendar.YEAR)-2000, "SENSOR2"));
 	}
 }

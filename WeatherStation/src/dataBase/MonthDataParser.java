@@ -3,6 +3,7 @@ package dataBase;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public abstract class MonthDataParser {
@@ -63,5 +64,39 @@ public abstract class MonthDataParser {
 			}
 		}
 		return result;
+	}
+	
+	protected float getMean(ArrayList<Number> inputList) {
+		float result = 0;
+		for (Number i : inputList) {
+			result = result + (float) i;
+		}
+		return result / inputList.size();
+	}
+	
+	protected Number getMax(ArrayList<Comparable<Number>> inputList) {
+		if (inputList.size() == 0) {
+			return null;
+		}
+		Comparable<Number> result = inputList.get(0);
+		for (Comparable<Number> i : inputList) {
+			if (i.compareTo((Number) result) > 0) {
+				result = i;
+			}
+		}
+		return (Number) result;
+	}
+	
+	protected Number getMin(ArrayList<Comparable<Number>> inputList) {
+		if (inputList.size() == 0) {
+			return null;
+		}
+		Comparable<Number> result = inputList.get(0);
+		for (Comparable<Number> i : inputList) {
+			if (i.compareTo((Number) result) < 0) {
+				result = i;
+			}
+		}
+		return (Number) result;
 	}
 }

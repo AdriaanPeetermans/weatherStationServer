@@ -42,7 +42,12 @@ public class MonthSensor1 extends MonthDataParser {
 	private String getUpdatedLine(int day) {
 		Parser sensor1Parser = new Parser(this.type, this.year, this.month, day, true);
 		Sensor1Data sensor1Data = (Sensor1Data) sensor1Parser.readFile();
-		
+		if (sensor1Data.time.size() == 0) {
+			return "*";
+		}
+		float maxTemp = this.getMax(sensor1Data.temperature);
+		float minTemp = this.getMin(sensor1Data.temperature);
+		float meanTemp = this.getMean(sensor1Data.temperature);
 	}
 	
 //	private final ArrayList<Sensor1Data> data = new ArrayList<Sensor1Data>(this.getNbDays());
