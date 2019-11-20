@@ -77,7 +77,8 @@ public class GameServer extends Server {
 	 * 		name:			getWordTime
 	 * 		parameters:		none
 	 * 		gameSTate:		2
-	 * 		returns:		"wordTime#" + seconds for word time integer
+	 * 		returns:		"wordTime#" + seconds for word time integer if this is not the current player's drawing,
+	 * 						"waitLonger" if this is the player's own drawing
 	 * 
 	 * 		name:			sendWord
 	 * 		parameters:		word
@@ -97,7 +98,7 @@ public class GameServer extends Server {
 	 * 		name:			getColorsHost
 	 * 		parameters:		none
 	 * 		gameState:		1
-	 * 		returns:		color00#color01#color10#color11#color20# ... #color70#color71
+	 * 		returns:		"playerColors#" + color00#color01#color10#color11#color20# ... #color70#color71
 	 * 
 	 * 		name:			getPlayerNames
 	 * 		parameters:		none
@@ -122,6 +123,8 @@ public class GameServer extends Server {
 	@Override
 	public void handleMessage(SocketMessage t) {
 		String[] parts = t.message.split("#");
+		System.out.println(this.playerIndex);
+		System.out.println("Received message: ".concat(t.message));
 		switch (parts[0]) {
 			case "joinGame":
 				t.sock.send(Integer.toString(this.joinGame(parts[1])));
@@ -148,7 +151,8 @@ public class GameServer extends Server {
 				this.sendDrawing(parts[1]);
 				break;
 			case "getWordTime":
-				t.sock.send("wordTime#".concat(Integer.toString(this.getWordTime())));
+				t.sock.send(this.getWordTimeMessage());
+				//t.sock.send("wordTime#".concat(Integer.toString(this.getWordTime())));
 				break;
 			case "sendWord":
 				this.sendWord(parts[1]);
@@ -240,24 +244,39 @@ public class GameServer extends Server {
 		return this.game.wordChooseTime;
 	}
 	
+	private String getWordTimeMessage() {
+		if (this.game.getCurrentPlayer() == this.playerIndex) {
+			return "waitLonger";
+		}
+		else {
+			return "wordTime#".concat(Integer.toString(this.getWordTime()));
+		}
+	}
+	
 	private void sendWord(String word) {
 		this.game.addWord(word, this.playerIndex);
 	}
 	
 	private String getWords() {
 		if (this.playerIndex == this.game.getCurrentPlayer()) {
+			//This should not happen!
 			String result = "No";
 			return result;
 		}
 		ArrayList<String> words = this.game.getWords(this.playerIndex);
-		String result = Integer.toString(this.game.getNumberPlayers()).concat("#");
-		for (int i = 0; i < this.game.getNumberPlayers(); i++) {
+		String result = Integer.toString(words.size()).concat("#");
+		for (int i = 0; i < words.size(); i++) {
 			result = result.concat(words.get(i)).concat("#");
 		}
 		return result;
 	}
 	
 	private String goFurther(int state) {
+		System.out.println("Received go further: ".concat(Integer.toString(state)).concat(Integer.toString(this.game.state)));
+		if (this.playerIndex == this.game.getCurrentPlayer()) {
+			//Current player should wait as his drawing is displayed on the screen.
+			return "no";
+		}
 		if (state < this.game.state) {
 			return "endWait";
 		}
@@ -332,6 +351,8 @@ public class GameServer extends Server {
 	 * 		gameState:		2
 	 */
 	public void notify(String reason, Object params) {
+		System.out.println(this.playerIndex);
+		System.out.println("Notify: ".concat(reason));
 		switch (reason) {
 			case "newPlayer":
 				int playerIndex = (int) params;

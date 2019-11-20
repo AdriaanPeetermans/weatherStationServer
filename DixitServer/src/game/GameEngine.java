@@ -1,6 +1,7 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import game.words.WordsParser;
@@ -137,6 +138,7 @@ public class GameEngine {
 	}
 	
 	public void addWord(String word, int playerIndex) {
+		System.out.println("Add word: ".concat(Arrays.toString(this.playersReady)));
 		word = this.adjustWord(word);
 		this.words[playerIndex] = word;
 		this.playersReady[playerIndex] = true;
@@ -150,16 +152,18 @@ public class GameEngine {
 		this.initPlayersReady();
 		this.playersReady[this.drawingPerm.get(this.wordNumber)] = true;
 		for (int i = 0; i < this.players.size(); i++) {
-			this.players.get(i).notify("endWait", null);
+			if (i != this.getCurrentPlayer()) {
+				this.players.get(i).notify("endWait", null);
+			}
 		}
 		this.state = 3;
 		this.host.notify("voteWord", null);
 	}
 	
 	public ArrayList<String> getWords(int playerNumber) {
-		ArrayList<String> result = new ArrayList<String>(this.players.size());
+		ArrayList<String> result = new ArrayList<String>(this.players.size()-1);
 		for (int i = 0; i < this.players.size(); i++) {
-			if (i != playerNumber) {
+			if ((i != playerNumber) && (i != this.getCurrentPlayer())) {
 				result.add(this.words[i]);
 			}
 		}
