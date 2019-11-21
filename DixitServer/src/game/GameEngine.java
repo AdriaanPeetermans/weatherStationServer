@@ -36,11 +36,27 @@ public class GameEngine {
 	
 	public final int voteTime = 100;
 	
+	public final int correctVoteDrawerPoints = 2;
+	
+	public final int correctVotedPoints = 1;
+	
+	public final int misleadPoints = 1;
+	
 	private String[] words = new String[8];
 	
 	public int wordNumber = 0;
 	
 	public int[] points = new int[8];
+	
+	/**
+	 * This array contains the points of the previous round, this enables the host to show the update animation.
+	 */
+	private int[] previousPoints = new int[8];
+	
+	/**
+	 * The string at index "i" in this array contains the word which player "i" voted in during this round.
+	 */
+	private String[] votedWords = new String[8];
 	
 	/**
 	 * GameState:
@@ -160,10 +176,10 @@ public class GameEngine {
 		this.host.notify("voteWord", null);
 	}
 	
-	public ArrayList<String> getWords(int playerNumber) {
-		ArrayList<String> result = new ArrayList<String>(this.players.size()-1);
+	public ArrayList<String> getWords(int playerNumber, boolean isHost) {
+		ArrayList<String> result = new ArrayList<String>(this.players.size());
 		for (int i = 0; i < this.players.size(); i++) {
-			if ((i != playerNumber) && (i != this.getCurrentPlayer())) {
+			if (((i != playerNumber) || (isHost)) && (i != this.getCurrentPlayer())) {
 				result.add(this.words[i]);
 			}
 		}
@@ -187,17 +203,21 @@ public class GameEngine {
 	}
 	
 	public void voted(int playerNumber, String word) {
+		this.votedWords[playerNumber] = word;
 		if (word.equals(this.realWords.get(this.drawingPerm.get(this.wordNumber)))) { //Correct vote
-			this.points[playerNumber] ++;
-			this.points[this.drawingPerm.get(this.wordNumber)] += 2;
+			this.points[playerNumber] += this.correctVotedPoints;
+			this.points[this.drawingPerm.get(this.wordNumber)] += this.correctVoteDrawerPoints;
 		}
 		else {
 			for (int i = 0; i < this.players.size(); i++) {
-				if ((this.words[i].equals(word)) && (i != playerNumber)) { //Mislead
-					this.points[i] ++;
+				if (i != this.getCurrentPlayer()) {
+					if ((this.words[i].equals(word)) && (i != playerNumber)) { //Mislead
+						this.points[i] += this.misleadPoints;
+					}
 				}
 			}
 		}
+		this.playersReady[playerNumber] = true;
 		this.checkAllPlayersReadyVoting();
 	}
 	
@@ -212,5 +232,52 @@ public class GameEngine {
 		System.out.println("stemmen klaar");
 		this.state = 1;
 		this.host.notify("showPoints", null);
+	}
+	
+	public String getCorrectWord() {
+		return this.realWords.get(this.drawingPerm.get(this.wordNumber));
+	}
+	
+	public PlayerData getCurrentPlayerData() {
+		return this.playerDatas.get(this.getCurrentPlayer());
+	}
+	
+	/**
+	 * Return a list of wrong words that got votes during this round.
+	 */
+	public ArrayList<String> getWrongWords() {
+		ArrayList<String> result = new ArrayList<String>(this.getNumberPlayers()-1);
+		for (int i = 0; i < this.getNumberPlayers(); i++) {
+			if (i != this.getCurrentPlayer()) {
+				if (!(this.votedWords[i].equals(this.getCorrectWord()))) {
+					if (!(result.contains(this.votedWords[i]))) {
+						result.add(this.votedWords[i]);
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Return a list of playerDatas that voted on this wrong word.
+	 */
+	public ArrayList<PlayerData> getWrongPlayers(String wrongWord) {
+		ArrayList<PlayerData> result = new ArrayList<PlayerData>(this.getNumberPlayers()-1);
+		for (int i = 0; i < this.getNumberPlayers(); i++) {
+			if (i != this.getCurrentPlayer()) {
+				if (this.votedWords[i].equals(wrongWord)) {
+					result.add(this.playerDatas.get(i));
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Return this players score at the beginning of the current round.
+	 */
+	public int getOldPlayerScore(int playerIndex) {
+		return this.previousPoints[playerIndex];
 	}
 }

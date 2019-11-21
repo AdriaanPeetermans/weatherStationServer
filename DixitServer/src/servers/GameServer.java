@@ -258,12 +258,12 @@ public class GameServer extends Server {
 	}
 	
 	private String getWords() {
-		if (this.playerIndex == this.game.getCurrentPlayer()) {
-			//This should not happen!
-			String result = "No";
-			return result;
-		}
-		ArrayList<String> words = this.game.getWords(this.playerIndex);
+//		if (this.playerIndex == this.game.getCurrentPlayer()) {
+//			//This should not happen!
+//			String result = "No";
+//			return result;
+//		}
+		ArrayList<String> words = this.game.getWords(this.playerIndex, this.isHost);
 		String result = Integer.toString(words.size()).concat("#");
 		for (int i = 0; i < words.size(); i++) {
 			result = result.concat(words.get(i)).concat("#");
@@ -316,7 +316,7 @@ public class GameServer extends Server {
 	}
 	
 	private void voted(String word) {
-		
+		this.game.voted(this.playerIndex, word);
 	}
 	
 	/**
@@ -427,6 +427,28 @@ public class GameServer extends Server {
 	}
 	
 	private void showPoints() { // Host wil animate points and send message to server that players can be woken up from waiting.
-		
+		String message = "showPoints#";
+		message = message.concat(this.game.getCorrectWord()).concat("#");
+		PlayerData currentPlayerData = this.game.getCurrentPlayerData();
+		message = message.concat(currentPlayerData.name).concat("#");
+		message = message.concat(currentPlayerData.colors.color1).concat("#");
+		message = message.concat(Integer.toString(currentPlayerData.index)).concat("#");
+		ArrayList<String> wrongWords = this.game.getWrongWords();
+		message = message.concat(Integer.toString(wrongWords.size())).concat("#");
+		for (String wrongWord : wrongWords) {
+			message = message.concat(wrongWord).concat("#");
+			ArrayList<PlayerData> wrongPlayers = this.game.getWrongPlayers(wrongWord);
+			message = message.concat(Integer.toString(wrongPlayers.size())).concat("#");
+			for (PlayerData wrongPlayer : wrongPlayers) {
+				message = message.concat(wrongPlayer.name).concat("#");
+				message = message.concat(wrongPlayer.colors.color1).concat("#");
+				message = message.concat(Integer.toString(wrongPlayer.index)).concat("#");
+			}
+		}
+		message = message.concat(Integer.toString(this.game.getNumberPlayers())).concat("#");
+		for (int i = 0; i < this.game.getNumberPlayers(); i++) {
+			message = message.concat(Integer.toString(this.game.getOldPlayerScore(i))).concat("#");
+		}
+		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
 	}
 }
