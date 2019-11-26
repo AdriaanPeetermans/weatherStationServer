@@ -280,4 +280,25 @@ public class GameEngine {
 	public int getOldPlayerScore(int playerIndex) {
 		return this.previousPoints[playerIndex];
 	}
+	
+	/**
+	 * Return the word that this player has send as a reaction to the given drawing.
+	 */
+	public String getPlayerWrongWord(int playerIndex) {
+		return this.words[playerIndex];
+	}
+	
+	/**
+	 * Return the player data from the player that has send in this word as a reaction to the given drawing.
+	 */
+	public PlayerData getPlayerWrongWord(String word) {
+		for (int i = 0; i < this.getNumberPlayers(); i++) {
+			if (this.words[i] != null) {
+				if (this.words[i].equals(word)) {
+					return this.playerDatas.get(i);
+				}
+			}
+		}
+		return null;
+	}
 }

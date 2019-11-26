@@ -432,16 +432,23 @@ public class GameServer extends Server {
 		PlayerData currentPlayerData = this.game.getCurrentPlayerData();
 		message = message.concat(currentPlayerData.name).concat("#");
 		message = message.concat(currentPlayerData.colors.color1).concat("#");
+		message = message.concat(currentPlayerData.colors.color2).concat("#");
 		message = message.concat(Integer.toString(currentPlayerData.index)).concat("#");
 		ArrayList<String> wrongWords = this.game.getWrongWords();
 		message = message.concat(Integer.toString(wrongWords.size())).concat("#");
 		for (String wrongWord : wrongWords) {
 			message = message.concat(wrongWord).concat("#");
+			PlayerData thisPlayer = this.game.getPlayerWrongWord(wrongWord);
+			message = message.concat(thisPlayer.name).concat("#");
+			message = message.concat(thisPlayer.colors.color1).concat("#");
+			message = message.concat(thisPlayer.colors.color2).concat("#");
+			message = message.concat(Integer.toString(thisPlayer.index)).concat("#");
 			ArrayList<PlayerData> wrongPlayers = this.game.getWrongPlayers(wrongWord);
 			message = message.concat(Integer.toString(wrongPlayers.size())).concat("#");
 			for (PlayerData wrongPlayer : wrongPlayers) {
 				message = message.concat(wrongPlayer.name).concat("#");
 				message = message.concat(wrongPlayer.colors.color1).concat("#");
+				message = message.concat(wrongPlayer.colors.color2).concat("#");
 				message = message.concat(Integer.toString(wrongPlayer.index)).concat("#");
 			}
 		}
