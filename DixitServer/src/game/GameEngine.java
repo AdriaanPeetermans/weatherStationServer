@@ -301,4 +301,19 @@ public class GameEngine {
 		}
 		return null;
 	}
+	
+	/**
+	 * Return a list of players that voted on the correct word.
+	 */
+	public ArrayList<PlayerData> getCorrectPlayers() {
+		ArrayList<PlayerData> result = new ArrayList<PlayerData>(this.getNumberPlayers()-1);
+		for (int i = 0; i < this.getNumberPlayers(); i++) {
+			if (i != this.getCurrentPlayer()) {
+				if (this.votedWords[i].equals(this.getCorrectWord())) {
+					result.add(this.playerDatas.get(i));
+				}
+			}
+		}
+		return result;
+	}
 }

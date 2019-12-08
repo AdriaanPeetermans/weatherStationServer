@@ -434,6 +434,14 @@ public class GameServer extends Server {
 		message = message.concat(currentPlayerData.colors.color1).concat("#");
 		message = message.concat(currentPlayerData.colors.color2).concat("#");
 		message = message.concat(Integer.toString(currentPlayerData.index)).concat("#");
+		ArrayList<PlayerData> correctPlayers = this.game.getCorrectPlayers();
+		message = message.concat(Integer.toString(correctPlayers.size())).concat("#");
+		for (PlayerData player : correctPlayers) {
+			message = message.concat(player.name).concat("#");
+			message = message.concat(player.colors.color1).concat("#");
+			message = message.concat(player.colors.color2).concat("#");
+			message = message.concat(Integer.toString(player.index)).concat("#");
+		}
 		ArrayList<String> wrongWords = this.game.getWrongWords();
 		message = message.concat(Integer.toString(wrongWords.size())).concat("#");
 		for (String wrongWord : wrongWords) {
@@ -456,6 +464,10 @@ public class GameServer extends Server {
 		for (int i = 0; i < this.game.getNumberPlayers(); i++) {
 			message = message.concat(Integer.toString(this.game.getOldPlayerScore(i))).concat("#");
 		}
+		// Also send score increments:
+		message = message.concat(Integer.toString(this.game.correctVoteDrawerPoints)).concat("#");
+		message = message.concat(Integer.toString(this.game.correctVotedPoints)).concat("#");
+		message = message.concat(Integer.toString(this.game.misleadPoints)).concat("#");
 		((WebSocket) this.webSocketServer.connections().toArray()[0]).send(message);
 	}
 }
