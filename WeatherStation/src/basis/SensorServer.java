@@ -127,7 +127,23 @@ public class SensorServer {
 	}
 	
 	private void handleSensor2(String message) {
-		
+		System.out.println(message);
+		String[] parts = message.split("#");
+		if (parts.length != 8) {
+			return;
+		}
+		int light = Integer.parseInt(parts[0]);
+		float temp = Float.parseFloat(parts[1]);
+		float hum = Float.parseFloat(parts[2]);
+		float soilTempR = Float.parseFloat(parts[3]);
+		float soilTempL = Float.parseFloat(parts[4]);
+		float soilMoistR = Float.parseFloat(parts[5]);
+		float soilMoistL = Float.parseFloat(parts[6]);
+		int direction = Integer.parseInt(parts[7]);
+		DataBaseManager dbManager = new DataBaseManager("SENSOR2");
+		Parser parser = dbManager.addFolder(0);
+		Calendar cal = Calendar.getInstance();
+		parser.appendFile(Integer.toString(light).concat(",").concat(Float.toString(hum)).concat(",").concat(Float.toString(temp)).concat(",").concat(Float.toString(soilTempR)).concat(",").concat(Float.toString(soilTempL)).concat(",").concat(Float.toString(soilMoistR)).concat(",").concat(Float.toString(soilMoistL)).concat(",").concat(Integer.toString(direction)).concat(" ").concat(this.extendString(cal.get(Calendar.HOUR_OF_DAY), 2)).concat(":").concat(this.extendString(cal.get(Calendar.MINUTE), 2)).concat(":").concat(this.extendString(cal.get(Calendar.SECOND), 2)).concat(" ").concat(this.extendString(cal.get(Calendar.DATE), 2)).concat("/").concat(this.extendString(cal.get(Calendar.MONTH)+1, 2)).concat("/").concat(this.extendString(cal.get(Calendar.YEAR)-2000, 2)).concat("\r\n"));
 	}
 	
 	private String extendString(int value, int length) {
