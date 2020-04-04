@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import dataBase.helpers.BasisData;
 import dataBase.helpers.DataObject;
 import dataBase.helpers.Sensor1Data;
+import dataBase.helpers.Sensor2Data;
 
 public class Parser {
 	
@@ -115,6 +116,9 @@ public class Parser {
 			case "SENSOR1":
 				dataObject = new Sensor1Data(this.day, this.month, this.year);
 				break;
+			case "SENSOR2":
+				dataObject = new Sensor2Data(this.day, this.month, this.year);
+				break;
 			default:
 				dataObject = null;
 				break;
@@ -130,6 +134,9 @@ public class Parser {
 				break;
 			case "SENSOR1":
 				dataObject = new Sensor1Data(this.day, this.month, this.year);
+				break;
+			case "SENSOR2":
+				dataObject = new Sensor2Data(this.day, this.month, this.year);
 				break;
 			default:
 				dataObject = null;
