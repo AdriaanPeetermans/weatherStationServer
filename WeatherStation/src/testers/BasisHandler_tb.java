@@ -14,7 +14,7 @@ public class BasisHandler_tb {
 		try {
 			//bh.setTime();
 			//System.out.println(bh.getDayIndex());
-			bh.transferFiles(3);
+			bh.transferFiles(5);
 			//bh.setDayCounter(8);
 			//System.out.println(bh.getBasisToPiData().toString());
 		} catch (BasisException e) {
